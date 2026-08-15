@@ -1,0 +1,32 @@
+Node dependencies
+
+node_modules/
+
+Local environment files
+
+.env
+.env.local
+
+Logs
+
+*.log
+
+OS-generated files
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+Editor / IDE files
+
+.vscode/
+.idea/
+
+Temporary files
+
+*.tmp
+*.temp
+*.bak
+
+rules/
+plan.md
