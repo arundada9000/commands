@@ -1,0 +1,657 @@
+[
+  {
+    "id": "blog-1",
+    "slug": "mastering-modern-git-rebasing-disaster-recovery",
+    "title": "Mastering Modern Git: Rebasing, Bisecting, and Disaster Recovery Playbook",
+    "tool": "git",
+    "category": "Version Control",
+    "readTime": "8 min read",
+    "date": "2026-03-15",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "A definitive guide to advanced Git operations. Learn interactive rebasing, automated binary search debugging with git bisect, and how to recover lost commits using git reflog.",
+    "quickAnswer": "To recover a lost Git commit after a hard reset or accidental branch deletion, run 'git reflog' to identify the SHA-1 hash of your detached HEAD state, then execute 'git checkout -b recovered-branch <commit-sha>' or 'git cherry-pick <commit-sha>' to restore your work intact.",
+    "tags": ["git", "version-control", "devops", "debugging", "workflow"],
+    "content": [
+      {
+        "heading": "1. Interactive Rebasing for Clean Commit Histories",
+        "text": "Maintaining a linear and understandable commit history is essential for high-velocity engineering teams. Interactive rebasing allows you to squash micro-commits, reword vague commit messages, and reorder logical changes before opening a pull request.",
+        "code": "# Start interactive rebase for the last 4 commits\ngit rebase -i HEAD~4\n\n# Commands inside the rebase todo list:\n# p, pick = use commit\n# r, reword = use commit, but edit the commit message\n# s, squash = meld into previous commit and combine messages\n# f, fixup = like squash, but discard this commit's log message\n# d, drop = remove commit"
+      },
+      {
+        "heading": "2. Automated Bug Hunting with Git Bisect",
+        "text": "When a regression enters production and manual code review fails to identify the culprit, git bisect uses binary search through your commit history to isolate the exact commit that introduced the failure.",
+        "code": "# Start bisect mode\ngit bisect start\n\n# Mark current state as broken\ngit bisect bad\n\n# Mark known good commit from last week\ngit bisect good v2.4.0\n\n# Automatically run test suite to find bad commit\ngit bisect run npm test\n\n# Reset back to original HEAD once found\ngit bisect reset"
+      },
+      {
+        "heading": "3. Disaster Recovery with the Reflog Safety Net",
+        "text": "Git almost never deletes committed data immediately. The reference log (reflog) tracks every single update made to the local tip of branches and HEAD, allowing you to recover from catastrophic commands like 'git reset --hard'.",
+        "code": "# View recent HEAD changes\ngit reflog\n\n# Output example:\n# a1b2c3d HEAD@{0}: reset: moving to HEAD~2\n# e5f6g7h HEAD@{1}: commit: Add critical auth middleware\n\n# Restore lost commit to a new rescue branch\ngit checkout -b rescue-branch e5f6g7h"
+      },
+      {
+        "heading": "4. Surgical Merge Conflict Resolution",
+        "text": "Avoid naive conflict resolutions by leveraging three-way diffs and rerere (reuse recorded resolution), which automatically memorizes and applies previous conflict resolutions.",
+        "code": "# Enable global reusable resolution\ngit config --global rerere.enabled true\n\n# Inspect three-way conflict diff\ngit diff --ours\ngit diff --theirs\ngit diff --base"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What is the primary difference between git merge and git rebase?",
+        "answer": "Git merge creates a new merge commit combining two historical paths, preserving non-linear history. Git rebase rewrites project history by replaying your branch commits on top of the target base commit, producing a clean, linear history."
+      },
+      {
+        "question": "Can git reflog recover commits that were never staged or committed?",
+        "answer": "No. Git reflog only records commits, branch switches, resets, and merges. Unstaged and uncommitted changes in the working directory cannot be restored through reflog."
+      },
+      {
+        "question": "How do I safely abort a rebase that went wrong?",
+        "answer": "Run 'git rebase --abort'. This stops the rebase process and resets your repository back to the exact branch state prior to starting the rebase."
+      },
+      {
+        "question": "How does git bisect work with automated test scripts?",
+        "answer": "Using 'git bisect run <script>', Git executes the script at each binary step. If the script exits with code 0, Git marks the commit as good; if it exits with code 1 to 127 (except 125), it marks it as bad."
+      }
+    ],
+    "relatedCommands": [
+      "git rebase -i HEAD~<n>",
+      "git reflog",
+      "git bisect start",
+      "git cherry-pick <commit-sha>",
+      "git reset --hard HEAD~1"
+    ]
+  },
+  {
+    "id": "blog-2",
+    "slug": "macos-terminal-power-user-guide-zsh-homebrew",
+    "title": "macOS Terminal Power User Guide: Zsh, Homebrew, and CLI Ergonomics",
+    "tool": "mac",
+    "category": "Operating Systems",
+    "readTime": "7 min read",
+    "date": "2026-03-12",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "Transform your macOS terminal into an efficient development environment. Master Zsh configuration, Homebrew bundle automation, launchctl management, and hidden system defaults.",
+    "quickAnswer": "To optimize macOS for CLI development, install Homebrew, configure Zsh with autosuggestions and fast syntax highlighting via '~/.zshrc', manage background daemons using 'brew services' or 'launchctl', and enable instantaneous key repeat with 'defaults write -g InitialKeyRepeat -int 10'.",
+    "tags": ["macos", "terminal", "zsh", "homebrew", "cli", "productivity"],
+    "content": [
+      {
+        "heading": "1. Modernizing Zsh with Zero Bloat",
+        "text": "Avoid heavy shell frameworks that introduce shell startup latency. A lean, handwritten '~/.zshrc' file with targeted plugins delivers sub-10ms prompt rendering.",
+        "code": "# ~/.zshrc additions for instant command suggestions\nsource /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh\nsource /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh\n\n# History configuration\nHISTSIZE=50000\nSAVEHIST=50000\nsetopt INC_APPEND_HISTORY\nsetopt SHARE_HISTORY"
+      },
+      {
+        "heading": "2. Declarative Machine Setups with Homebrew Bundle",
+        "text": "Never manually install applications and CLI utilities one by one on a new Mac. Define your entire machine configuration in a single version-controlled Brewfile.",
+        "code": "# Export current system state to Brewfile\nbrew bundle dump --describe --force\n\n# Install all tools, fonts, and apps from a Brewfile on a new Mac\nbrew bundle --file=./Brewfile\n\n# Check for outdated packages and prune untracked formulas\nbrew bundle cleanup --force"
+      },
+      {
+        "heading": "3. Managing macOS Background Daemons with launchctl",
+        "text": "macOS uses launchd rather than systemd. Understanding how to load, unload, and inspect LaunchAgents is vital for background services and cron-like scheduled tasks.",
+        "code": "# List active user background services\nlaunchctl list | grep local\n\n# Load and start a custom background agent\nlaunchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.dev.sync.plist\n\n# Stop and unload an agent\nlaunchctl bootout gui/$(id -u)/com.dev.sync"
+      },
+      {
+        "heading": "4. Power Defaults for Engineers",
+        "text": "macOS contains dozens of hidden configuration flags accessible via the 'defaults' command to disable animation delays and speed up keyboard repeats.",
+        "code": "# Set lightning fast key repeat rate\ndefaults write -g KeyRepeat -int 1\ndefaults write -g InitialKeyRepeat -int 10\n\n# Show hidden files in Finder by default\ndefaults write com.apple.finder AppleShowAllFiles -bool true\n\n# Disable window opening animations\ndefaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false\n\n# Apply changes\nkillall Finder"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "How do I fix Homebrew permission errors on Apple Silicon Macs?",
+        "answer": "Homebrew is installed in '/opt/homebrew' on Apple Silicon. Ensure your PATH includes '/opt/homebrew/bin' by evaluating '$(/opt/homebrew/bin/brew shellenv)' in your '~/.zprofile'."
+      },
+      {
+        "question": "What is the difference between LaunchAgents and LaunchDaemons on macOS?",
+        "answer": "LaunchAgents run in the user session on behalf of the logged-in user, located in '~/Library/LaunchAgents' or '/Library/LaunchAgents'. LaunchDaemons run in the system context as root with no user UI access, located in '/Library/LaunchDaemons'."
+      },
+      {
+        "question": "How can I check what is slowing down my Zsh startup time?",
+        "answer": "Add 'zmodload zsh/zprof' to the very top of '~/.zshrc' and 'zprof' to the very bottom, then open a fresh shell to see a breakdown of execution times per function."
+      },
+      {
+        "question": "How do I flush the DNS cache on modern macOS versions?",
+        "answer": "Run 'sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder' in the terminal."
+      }
+    ],
+    "relatedCommands": [
+      "brew bundle dump",
+      "defaults write -g KeyRepeat -int 1",
+      "launchctl list",
+      "dscacheutil -flushcache",
+      "killall Finder"
+    ]
+  },
+  {
+    "id": "blog-3",
+    "slug": "linux-server-hardening-production-systemd",
+    "title": "Linux Server Hardening and Production Systemd Service Management",
+    "tool": "linux",
+    "category": "DevOps & Infrastructure",
+    "readTime": "9 min read",
+    "date": "2026-03-10",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "Comprehensive playbook for securing Ubuntu and Debian production servers. Configure UFW firewalls, enforce SSH key authentication with fail2ban, write robust systemd unit files, and master journalctl log auditing.",
+    "quickAnswer": "To create a resilient systemd service for a Node.js or Go application on Linux, create a unit file at '/etc/systemd/system/app.service' with 'Restart=always', 'RestartSec=5s', a dedicated unprivileged user, and run 'systemctl daemon-reload && systemctl enable --now app.service'.",
+    "tags": ["linux", "security", "systemd", "devops", "server", "sysadmin"],
+    "content": [
+      {
+        "heading": "1. Restricting Access with UFW and Fail2ban",
+        "text": "A newly deployed VPS must restrict all non-essential ingress traffic immediately. Configure Uncomplicated Firewall (UFW) with strict default-deny policies and activate Fail2ban for brute-force protection.",
+        "code": "# Set strict firewall defaults\nsudo ufw default deny incoming\nsudo ufw default allow outgoing\n\n# Allow SSH, HTTP, and HTTPS only\nsudo ufw allow 22/tcp comment 'SSH'\nsudo ufw allow 80/tcp comment 'HTTP'\nsudo ufw allow 443/tcp comment 'HTTPS'\n\n# Enable firewall\nsudo ufw enable\nsudo ufw status verbose"
+      },
+      {
+        "heading": "2. Hardening SSH Configuration",
+        "text": "Disable password authentication and root login in '/etc/ssh/sshd_config' to eliminate the primary attack vector for automated port scanners.",
+        "code": "# Key settings in /etc/ssh/sshd_config.d/hardening.conf:\n# PermitRootLogin no\n# PasswordAuthentication no\n# PubkeyAuthentication yes\n# MaxAuthTries 3\n\n# Validate config and reload daemon\nsudo sshd -t && sudo systemctl reload sshd"
+      },
+      {
+        "heading": "3. Crafting Resilient Systemd Unit Files",
+        "text": "Do not run production services in screen or tmux sessions. Define declarative systemd services with process isolation, sandboxing, and automatic resurrection.",
+        "code": "# /etc/systemd/system/api-server.service\n[Unit]\nDescription=Production Node.js API Service\nAfter=network.target\n\n[Service]\nType=simple\nUser=deploy\nWorkingDirectory=/var/www/api\nExecStart=/usr/bin/node dist/index.js\nRestart=always\nRestartSec=5s\nEnvironment=NODE_ENV=production PORT=3000\nProtectSystem=strict\nProtectHome=true\n\n[Install]\nWantedBy=multi-user.target"
+      },
+      {
+        "heading": "4. Master Log Auditing with journalctl",
+        "text": "Troubleshoot crashes and monitor performance in real time using targeted journalctl queries with time filtering and priority flags.",
+        "code": "# Follow live logs for a specific service\njournalctl -u api-server.service -f\n\n# View logs since the last reboot with errors only\njournalctl -b -p err\n\n# View logs within a precise time window\njournalctl -u api-server.service --since '2026-03-10 14:00:00' --until '2026-03-10 14:30:00'"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Why should I use systemd instead of PM2 or nohup for Node.js in production?",
+        "answer": "Systemd is the native Linux init system. It starts before user sessions, handles system-level process sandboxing, provides unified journal logging, and automatically recovers after kernel reboots with zero external dependencies."
+      },
+      {
+        "question": "How do I safely restart a service without dropping active connections?",
+        "answer": "Use 'systemctl reload <service>' if the application supports hot configuration reloading (like NGINX or Caddy), or configure a reverse proxy load balancer with blue-green rolling restarts."
+      },
+      {
+        "question": "What is the command to check listening ports and active sockets?",
+        "answer": "Run 'ss -tulpn' to display all TCP and UDP listening sockets along with their process identifiers."
+      },
+      {
+        "question": "How do I test a systemd service file for syntax errors?",
+        "answer": "Run 'systemd-analyze verify /etc/systemd/system/my-service.service' to validate syntax and security directives."
+      }
+    ],
+    "relatedCommands": [
+      "systemctl status <service>",
+      "systemctl enable --now <service>",
+      "journalctl -u <service> -f",
+      "ufw status verbose",
+      "ss -tulpn"
+    ]
+  },
+  {
+    "id": "blog-4",
+    "slug": "nextjs-15-react-19-app-router-caching-deep-dive",
+    "title": "Next.js 15 and React 19 Architecture: App Router, Server Actions, and Caching Deep Dive",
+    "tool": "nextjs",
+    "category": "Frontend Engineering",
+    "readTime": "10 min read",
+    "date": "2026-03-08",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "Master the nuances of Next.js 15 and React 19 Server Components. Understand un-cached fetch defaults, server actions mutation patterns, partial prerendering, and optimized dynamic IO.",
+    "quickAnswer": "Next.js 15 changes the default caching behavior of fetch requests from cached to un-cached ('no-store') by default. To cache specific requests, explicitly declare '{ cache: 'force-cache' }' or use 'unstable_cache' alongside the 'revalidateTag()' API for on-demand mutation invalidation.",
+    "tags": ["nextjs", "react", "typescript", "architecture", "webdev", "performance"],
+    "content": [
+      {
+        "heading": "1. Next.js 15 Caching Defaults Explained",
+        "text": "In Next.js 14 and earlier, fetch requests were aggressively cached by default. Next.js 15 aligns with standard HTTP semantics: fetch requests are un-cached by default unless specified otherwise.",
+        "code": "// Explicit caching in Next.js 15\nexport async function getProductCatalog() {\n  const res = await fetch('https://api.example.com/products', {\n    cache: 'force-cache',\n    next: { tags: ['products'], revalidate: 3600 }\n  });\n  return res.json();\n}"
+      },
+      {
+        "heading": "2. Server Actions and Type-Safe Mutations",
+        "text": "Server Actions in React 19 provide RPC-style backend mutations without manual API route wiring. Always validate incoming payload boundaries using Zod.",
+        "code": "'use server';\nimport { z } from 'zod';\nimport { revalidateTag } from 'next/cache';\n\nconst UpdateSchema = z.object({ id: z.string(), title: z.string().min(3) });\n\nexport async function updateArticleAction(formData: FormData) {\n  const parsed = UpdateSchema.safeParse(Object.fromEntries(formData));\n  if (!parsed.success) return { error: parsed.error.flatten() };\n  \n  await db.article.update({ where: { id: parsed.data.id }, data: { title: parsed.data.title } });\n  revalidateTag('articles');\n  return { success: true };\n}"
+      },
+      {
+        "heading": "3. Partial Prerendering (PPR) and Dynamic IO",
+        "text": "PPR combines instant static shell delivery with streamed dynamic content holes wrapped inside React Suspense boundaries, eliminating the traditional static versus dynamic dichotomy.",
+        "code": "// next.config.ts\nconst nextConfig = {\n  experimental: {\n    ppr: 'incremental',\n  },\n};\nexport default nextConfig;\n\n// In page.tsx: Wrap dynamic widgets in Suspense\n<Suspense fallback={<MetricsSkeleton />}>\n  <LiveTelemetryDashboard />\n</Suspense>"
+      },
+      {
+        "heading": "4. Optimizing Image and Font Loading",
+        "text": "Utilize 'next/font/google' and 'next/image' with explicit sizing to prevent Cumulative Layout Shifts (CLS) and ensure optimal Core Web Vitals.",
+        "code": "import Image from 'next/image';\n\nexport function HeroBanner() {\n  return (\n    <Image\n      src=\"/hero-desktop.webp\"\n      alt=\"Command Deck Desktop View\"\n      width={1280}\n      height={720}\n      priority\n      sizes=\"(max-width: 768px) 100vw, 1280px\"\n    />\n  );\n}"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Why did Next.js 15 switch fetch requests to un-cached by default?",
+        "answer": "Developers frequently encountered stale data bugs during development and mutations due to implicit caching. Un-cached by default makes data fetching predictable and mirrors standard web fetch behavior."
+      },
+      {
+        "question": "What is the difference between revalidatePath and revalidateTag?",
+        "answer": "revalidatePath purges cache entries associated with a specific URL route, whereas revalidateTag invalidates all cached fetch calls assigned a specific tag across all routes simultaneously."
+      },
+      {
+        "question": "Can Server Actions be called directly from Client Components?",
+        "answer": "Yes. Server Actions can be imported and invoked inside client event handlers, useEffect hooks, or form actions with automatic type safety."
+      },
+      {
+        "question": "How does React 19 useActionState simplify form handling?",
+        "answer": "useActionState manages pending state, action returned values, and form optimistic updates without requiring manual useState flags."
+      }
+    ],
+    "relatedCommands": [
+      "npx create-next-app@latest",
+      "npm run build",
+      "npm run dev -- --turbo",
+      "npx next info"
+    ]
+  },
+  {
+    "id": "blog-5",
+    "slug": "pnpm-vs-npm-monorepos-dependency-management",
+    "title": "Package Manager Face-off: pnpm vs npm vs bun in High-Scale Monorepos",
+    "tool": "pnpm",
+    "category": "Tooling & Monorepos",
+    "readTime": "8 min read",
+    "date": "2026-03-05",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "A technical evaluation of modern package managers. Discover why content-addressable storage, symlinked node_modules, and strict peer dependencies make pnpm the superior choice for high-scale monorepos.",
+    "quickAnswer": "pnpm saves massive disk space and prevents ghost dependencies by storing all packages in a global content-addressable store and using hard links and symlinks to construct isolated node_modules trees, unlike npm's flat and hoisted structure.",
+    "tags": ["pnpm", "npm", "monorepo", "javascript", "tooling", "performance"],
+    "content": [
+      {
+        "heading": "1. Content-Addressable Storage Mechanics",
+        "text": "Traditional package managers copy duplicate packages into every project folder on your disk. pnpm stores every file once in a central global store ('~/.local/share/pnpm/store') and uses hard links to construct project node_modules without consuming additional disk space.",
+        "code": "# Check global store path and disk usage\npnpm store path\npnpm store status\n\n# Prune orphaned packages from the store\npnpm store prune"
+      },
+      {
+        "heading": "2. Eliminating Phantom / Ghost Dependencies",
+        "text": "npm hoists nested dependencies to the root of node_modules, allowing your code to import libraries that were never declared in your package.json. pnpm builds a nested symlink structure that strictly isolates dependencies.",
+        "code": "// In pnpm: Trying to import an undeclared transitive package:\n// Error: Cannot find module 'lodash'\n// Forces you to explicitly declare what you depend on."
+      },
+      {
+        "heading": "3. Configuring pnpm Workspaces for Monorepos",
+        "text": "Organize multi-package repositories cleanly using 'pnpm-workspace.yaml' with filtering and recursive scripts.",
+        "code": "# pnpm-workspace.yaml\npackages:\n  - 'apps/*'\n  - 'packages/*'\n  - 'tooling/*'\n\n# Run tests only across changed packages in a PR\npnpm --filter '...[origin/main]' test\n\n# Add shared package to a web app\npnpm --filter @app/web add @workspace/ui"
+      },
+      {
+        "heading": "4. Execution Performance and CI/CD Caching",
+        "text": "In continuous integration pipelines (GitHub Actions, GitLab CI), pnpm's content-addressable store can be cached with a single action, cutting build install times by up to 80%.",
+        "code": "# GitHub Actions step for pnpm caching\n- name: Setup pnpm\n  uses: pnpm/action-setup@v4\n  with:\n    version: 9\n    run_install: false\n\n- name: Get pnpm store directory\n  shell: bash\n  run: echo \"STORE_PATH=$(pnpm store path --silent)\" >> $GITHUB_ENV"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What happens if a tool expects flat node_modules with pnpm?",
+        "answer": "You can configure '.npmrc' with 'node-linker=hoisted' or 'shamefully-hoist=true' to emulate npm's flat structure for legacy tools while retaining pnpm install speeds."
+      },
+      {
+        "question": "How does pnpm compare with Bun in terms of monorepo tooling?",
+        "answer": "Bun provides fast raw package installations, but pnpm features mature monorepo workspace filters, strict peer dependency validation, and enterprise-grade lockfile deterministic guarantees."
+      },
+      {
+        "question": "How do I upgrade all outdated dependencies interactively in pnpm?",
+        "answer": "Run 'pnpm update --interactive --latest' (or 'pnpm up -i -L') to review and select upgrades in a terminal UI."
+      },
+      {
+        "question": "What is the command to verify lockfile integrity in pnpm?",
+        "answer": "Run 'pnpm install --frozen-lockfile' to ensure no unexpected modifications occur during CI builds."
+      }
+    ],
+    "relatedCommands": [
+      "pnpm install --frozen-lockfile",
+      "pnpm update -i -L",
+      "pnpm store prune",
+      "pnpm --filter <pkg> run <script>",
+      "pnpm why <pkg>"
+    ]
+  },
+  {
+    "id": "blog-6",
+    "slug": "vscode-keyboard-shortcuts-productivity-guide",
+    "title": "VS Code Keyboard Maestro: Navigation, Multi-Cursor, and Debugging Shortcuts",
+    "tool": "vscode",
+    "category": "Developer Productivity",
+    "readTime": "6 min read",
+    "date": "2026-03-02",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "Eliminate mouse reliance in Visual Studio Code. Master multi-cursor column editing, symbol-based file navigation, integrated terminal switching, and breakpoint debugging shortcuts.",
+    "quickAnswer": "In VS Code, press 'Ctrl+D' (or 'Cmd+D' on Mac) to select the next matching occurrence of a word for simultaneous multi-cursor editing. Press 'Ctrl+Shift+L' ('Cmd+Shift+L') to select all occurrences across the entire file at once.",
+    "tags": ["vscode", "shortcuts", "productivity", "editor", "workflow"],
+    "content": [
+      {
+        "heading": "1. Multi-Cursor Power Operations",
+        "text": "Transform multi-line repetitive refactors into single keystrokes using multiple cursors and vertical column selection.",
+        "code": "# Select next match: Ctrl+D / Cmd+D\n# Skip match: Ctrl+K Ctrl+D / Cmd+K Cmd+D\n# Select all occurrences: Ctrl+Shift+L / Cmd+Shift+L\n# Add cursor above/below: Ctrl+Alt+Up/Down / Cmd+Option+Up/Down\n# Column (box) select: Shift+Alt+MouseDrag / Shift+Option+MouseDrag"
+      },
+      {
+        "heading": "2. Fuzzy Navigation and Symbol Jumping",
+        "text": "Never browse through directory trees manually. Use fuzzy Quick Open and symbol jumps to reach any function or class in milliseconds.",
+        "code": "# Quick Open file: Ctrl+P / Cmd+P\n# Go to symbol in file: Ctrl+Shift+O / Cmd+Shift+O (type ':' to group by category)\n# Go to symbol in workspace: Ctrl+T / Cmd+T\n# Go to line: Ctrl+G / Cmd+G"
+      },
+      {
+        "heading": "3. Terminal and Editor Splits Management",
+        "text": "Navigate between split editor panes and the integrated terminal without touching the trackpad.",
+        "code": "# Toggle terminal: Ctrl+` / Cmd+`\n# Focus between editor and terminal: Ctrl+` \n# Split editor: Ctrl+\\ / Cmd+\\\n# Focus editor groups: Ctrl+1, Ctrl+2, Ctrl+3 / Cmd+1, Cmd+2, Cmd+3"
+      },
+      {
+        "heading": "4. Keyboard-Driven Debugging",
+        "text": "Control debugging sessions with standard function keys.",
+        "code": "# Start / Continue debugging: F5\n# Step Over: F10\n# Step Into: F11\n# Step Out: Shift+F11\n# Toggle Breakpoint: F9\n# Stop Debugging: Shift+F5"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "How do I view all active keybindings in VS Code?",
+        "answer": "Press 'Ctrl+K Ctrl+S' (or 'Cmd+K Cmd+S' on Mac) to open the Keyboard Shortcuts configuration panel."
+      },
+      {
+        "question": "How can I format a whole file or selected code block via keyboard?",
+        "answer": "Press 'Shift+Alt+F' on Windows/Linux or 'Shift+Option+F' on macOS to format the document with your default formatter (Prettier, Biome, or ESLint)."
+      },
+      {
+        "question": "What is the shortcut to fold and unfold code blocks?",
+        "answer": "Press 'Ctrl+Shift+[' ('Cmd+Option+[') to fold code, and 'Ctrl+Shift+]' ('Cmd+Option+]') to unfold code."
+      },
+      {
+        "question": "How do I trigger IntelliSense autocomplete manually?",
+        "answer": "Press 'Ctrl+Space' (or 'Cmd+Space') anywhere in the editor."
+      }
+    ],
+    "relatedCommands": [
+      "code .",
+      "code -r <file>",
+      "code --diff <file1> <file2>",
+      "code --install-extension <id>"
+    ]
+  },
+  {
+    "id": "blog-7",
+    "slug": "windows-powershell-automation-for-developers",
+    "title": "Windows PowerShell 7 Automation for Unix Developers",
+    "tool": "windows",
+    "category": "Scripting & DevOps",
+    "readTime": "7 min read",
+    "date": "2026-02-28",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "Bridge the gap between Bash and PowerShell. Learn object-oriented pipeline processing, custom profile configuration, WSL2 integration, and task automation on Windows.",
+    "quickAnswer": "PowerShell differs fundamentally from Unix shells because its pipelines pass structured .NET objects rather than plain text streams. This enables precise filtering using 'Where-Object { $_.Property -eq 'value' }' and property selection with 'Select-Object' without relying on awk, sed, or grep.",
+    "tags": ["windows", "powershell", "scripting", "wsl", "automation", "devops"],
+    "content": [
+      {
+        "heading": "1. Object Pipelines vs Plain Text Streams",
+        "text": "In Bash, command output is a string requiring parsing via awk, cut, or sed. In PowerShell, everything passed through the pipe is an object with typed properties and methods.",
+        "code": "# Filter running processes using over 500MB working memory\nGet-Process | Where-Object WorkingSet64 -gt 500MB | Select-Object Name, @{Name='MemMB';Expression={[math]::Round($_.WorkingSet64/1MB,2)}}\n\n# Stop all node processes cleanly\nGet-Process -Name node -ErrorAction SilentlyContinue | Stop-Process"
+      },
+      {
+        "heading": "2. Customizing the PowerShell 7 Profile",
+        "text": "Configure your '$PROFILE' with Unix aliases, custom prompts, and utility functions for a familiar developer workflow.",
+        "code": "# Open current user profile\nnotepad $PROFILE\n\n# Common Unix aliases in PowerShell profile\nSet-Alias -Name ll -Value Get-ChildItem\nfunction which ($name) { Get-Command $name -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source }\nfunction touch ($file) { New-Item -ItemType File -Path $file -Force }"
+      },
+      {
+        "heading": "3. Seamless WSL2 and Windows Interoperability",
+        "text": "Run Linux binaries directly from PowerShell, and call Windows binaries (.exe) from inside your WSL2 bash terminal.",
+        "code": "# Call Linux commands from Windows PowerShell\nwsl ls -la /var/www\nwsl grep -rn \"TODO\" .\n\n# Access Windows drive from inside WSL2\ncd /mnt/c/Users/arunn/Projects\nexplorer.exe ."
+      },
+      {
+        "heading": "4. Rapid Package Management with Winget",
+        "text": "Automate Windows developer workstation setups using Microsoft's official Windows Package Manager (winget).",
+        "code": "# Install developer tools cleanly\nwinget install --id Git.Git -e --source winget\nwinget install --id Microsoft.VisualStudioCode -e\nwinget install --id OpenJS.NodeJS.LTS -e\n\n# Upgrade all installed packages\nwinget upgrade --all"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "How do I check my current PowerShell version?",
+        "answer": "Run '$PSVersionTable.PSVersion' in the terminal. PowerShell 7 displays as '7.x'."
+      },
+      {
+        "question": "How do I bypass execution policy restrictions for local scripts?",
+        "answer": "Run 'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser' to allow local scripts to execute while requiring digital signatures for downloaded remote scripts."
+      },
+      {
+        "question": "What is the equivalent of 'curl' and 'wget' in PowerShell?",
+        "answer": "PowerShell includes 'Invoke-RestMethod' (returns parsed JSON/XML objects directly) and 'Invoke-WebRequest' (returns raw HTTP responses)."
+      },
+      {
+        "question": "How do I measure command execution time in PowerShell?",
+        "answer": "Use 'Measure-Command { my-command-or-script }' to display milliseconds, seconds, and minutes elapsed."
+      }
+    ],
+    "relatedCommands": [
+      "Get-Process",
+      "Get-Service",
+      "winget install <id>",
+      "wsl -d Ubuntu",
+      "Invoke-RestMethod"
+    ]
+  },
+  {
+    "id": "blog-8",
+    "slug": "davinci-resolve-color-grading-keyboard-workflows",
+    "title": "DaVinci Resolve 19 Post-Production Shortcuts and Color Grading Workflows",
+    "tool": "davinci",
+    "category": "Media Production",
+    "readTime": "8 min read",
+    "date": "2026-02-24",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "Accelerate your video editing and color grading workflow in DaVinci Resolve 19. Master node graph management, three-point editing, ripple trims, and Fairlight audio shortcuts.",
+    "quickAnswer": "In DaVinci Resolve color page, press 'Alt+S' (Option+S) to create a serial node, 'Alt+P' (Option+P) for a parallel node, and 'Alt+L' (Option+L) for a layer node. Press 'Shift+D' to bypass all color grades instantly to evaluate before/after progress.",
+    "tags": ["davinci", "video-editing", "color-grading", "shortcuts", "post-production"],
+    "content": [
+      {
+        "heading": "1. Three-Point Editing and Timeline Speed",
+        "text": "Master the core keyboard gestures in the Cut and Edit pages to assemble rough cuts without clicking and dragging.",
+        "code": "# Mark In: I\n# Mark Out: O\n# Overwrite Edit: F10\n# Insert Edit: F9\n# Append to end of timeline: Shift+F12\n# Play backward / stop / play forward: J / K / L"
+      },
+      {
+        "heading": "2. Color Page Node Architecture",
+        "text": "Maintain structured node trees for non-destructive color balancing, contrast adjustments, skin-tone isolation, and film look LUTs.",
+        "code": "# Add Serial Node: Alt+S (Option+S)\n# Add Parallel Node: Alt+P (Option+P)\n# Add Layer Node: Alt+L (Option+L)\n# Toggle Active Node: Ctrl+D (Cmd+D)\n# Bypass All Color Grades: Shift+D\n# Grab Still: Ctrl+Alt+G (Cmd+Option+G)"
+      },
+      {
+        "heading": "3. Precision Ripple Trimming",
+        "text": "Trim edit points dynamically during timeline playback without creating empty gaps.",
+        "code": "# Selection Mode: A\n# Trim Edit Mode: T\n# Blade tool: B\n# Ripple Delete selected clip: Shift+Backspace / Shift+Delete\n# Trim head to playhead: Ctrl+Shift+[ (Cmd+Shift+[)\n# Trim tail to playhead: Ctrl+Shift+] (Cmd+Shift+])"
+      },
+      {
+        "heading": "4. Fairlight Audio Mixing Quick Navigation",
+        "text": "Clean audio tracks, automate faders, and route sub-mixes efficiently using dedicated Fairlight shortcuts.",
+        "code": "# Arm track for recording: R\n# Toggle Mute: M\n# Toggle Solo: S\n# Zoom in / out timeline: Ctrl+= / Ctrl+-"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What is the difference between a Serial node and a Parallel node?",
+        "answer": "A Serial node processes adjustments sequentially, receiving the output of the previous node. A Parallel node takes the identical input from the prior node and blends multiple independent adjustments simultaneously without hierarchy bias."
+      },
+      {
+        "question": "How do I quickly match color across two different camera shots?",
+        "answer": "Select the target clip, right-click the reference clip in the timeline gallery, and choose 'Shot Match to This Clip' or wipe stills using the split-screen view."
+      },
+      {
+        "question": "What shortcut enables proxy media generation in DaVinci Resolve?",
+        "answer": "Select clips in the Media Pool, right-click, and select 'Generate Proxy Media' or press 'Playback > Proxy Handling > Proxy Resolution > Half'."
+      },
+      {
+        "question": "How do I reset all node adjustments on the Color page?",
+        "answer": "Press 'Ctrl+Home' (or 'Cmd+Home' on Mac) to reset all grades on the current clip."
+      }
+    ],
+    "relatedCommands": [
+      "Alt+S",
+      "Shift+D",
+      "Ctrl+D",
+      "J / K / L",
+      "Shift+F12"
+    ]
+  },
+  {
+    "id": "blog-9",
+    "slug": "building-resilient-offline-first-pwas-service-workers",
+    "title": "Building Resilient Offline-First PWAs with Cache API and Background Sync",
+    "tool": "nextjs",
+    "category": "Web Architecture",
+    "readTime": "9 min read",
+    "date": "2026-02-20",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "How to design production Progressive Web Apps that function without a network connection. Implement cache-first asset delivery, stale-while-revalidate data strategies, and IndexedDB queuing.",
+    "quickAnswer": "An offline-first PWA serves static core assets directly from the Cache Storage API via a Service Worker fetch listener, while queuing user writes and mutations in IndexedDB to be synced to the server once the 'online' event fires.",
+    "tags": ["pwa", "service-worker", "offline-first", "javascript", "cache", "webdev"],
+    "content": [
+      {
+        "heading": "1. Service Worker Lifecycle and Precaching",
+        "text": "A reliable PWA precaches all core HTML, CSS, JavaScript, and font assets during the 'install' event and prunes obsolete caches during the 'activate' phase.",
+        "code": "const CACHE_NAME = 'deck-v1';\nconst ASSETS = ['/', '/index.html', '/manifest.webmanifest'];\n\nself.addEventListener('install', (e) => {\n  e.waitUntil(\n    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))\n  );\n  self.skipWaiting();\n});\n\nself.addEventListener('activate', (e) => {\n  e.waitUntil(\n    caches.keys().then((keys) =>\n      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))\n    )\n  );\n  self.clients.claim();\n});"
+      },
+      {
+        "heading": "2. Caching Strategies: Cache-First vs Stale-While-Revalidate",
+        "text": "Apply cache-first for immutable static files (fonts, images) and stale-while-revalidate for dynamic content feeds to ensure instant loads paired with background freshness.",
+        "code": "self.addEventListener('fetch', (event) => {\n  event.respondWith(\n    caches.match(event.request).then((cachedResponse) => {\n      if (cachedResponse) return cachedResponse;\n      return fetch(event.request).then((networkResponse) => {\n        if (!networkResponse || networkResponse.status !== 200) return networkResponse;\n        const cloned = networkResponse.clone();\n        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));\n        return networkResponse;\n      });\n    })\n  );\n});"
+      },
+      {
+        "heading": "3. IndexedDB Offline Mutation Queues",
+        "text": "When users create or edit resources offline, store operations in an IndexedDB queue. Listen to the window 'online' event to flush queued requests sequentially.",
+        "code": "window.addEventListener('online', async () => {\n  const queue = await getOfflineQueueFromIDB();\n  for (const task of queue) {\n    await fetch(task.url, { method: task.method, body: task.payload });\n    await removeFromIDB(task.id);\n  }\n  notifyUser('All offline changes synced successfully.');\n});"
+      },
+      {
+        "heading": "4. Web App Manifest for Native OS Installability",
+        "text": "Ensure your 'manifest.webmanifest' declares required metadata, crisp icons, display mode standalone, and theme colors to trigger browser install prompts.",
+        "code": "{\n  \"name\": \"Command Deck: Developer Knowledge Engine\",\n  \"short_name\": \"CommandDeck\",\n  \"start_url\": \"/\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#090d16\",\n  \"theme_color\": \"#d97706\",\n  \"icons\": [\n    { \"src\": \"/assets/img/logo.svg\", \"sizes\": \"512x512\", \"type\": \"image/svg+xml\" }\n  ]\n}"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Can Service Workers run when the page is opened from file:// protocol?",
+        "answer": "No. The Service Worker API requires a secure context (HTTPS or localhost). For local file execution, apps should inline essential assets or fallback gracefully."
+      },
+      {
+        "question": "How much storage quota does Cache Storage allow in modern browsers?",
+        "answer": "Modern browsers typically allow up to 60% of available disk space, shared across origins, with automatic eviction policies under low disk pressure."
+      },
+      {
+        "question": "What happens if a user navigates to an un-cached route offline?",
+        "answer": "Your service worker fetch listener should catch the network failure and return a custom offline fallback HTML page."
+      },
+      {
+        "question": "How do I prompt users to install the PWA on iOS Safari?",
+        "answer": "iOS Safari does not support the 'beforeinstallprompt' event. Display a subtle banner guiding users to tap the Share icon and select 'Add to Home Screen'."
+      }
+    ],
+    "relatedCommands": [
+      "navigator.serviceWorker.register()",
+      "caches.open()",
+      "caches.match()",
+      "indexedDB.open()"
+    ]
+  },
+  {
+    "id": "blog-10",
+    "slug": "generative-engine-optimization-geo-aeo-developer-docs",
+    "title": "Generative Engine Optimization (GEO) and AEO for Developer Documentation",
+    "tool": "git",
+    "category": "SEO & Machine Retrieval",
+    "readTime": "11 min read",
+    "date": "2026-02-15",
+    "author": {
+      "name": "Arun Neupane",
+      "role": "CTO and Lead Architect",
+      "company": "Sajilo Digital Pvt. Ltd.",
+      "url": "https://arunneupane.vercel.app",
+      "github": "https://github.com/arundada9000"
+    },
+    "summary": "How to structure technical content, cheat sheets, and API references so AI search engines like Perplexity, ChatGPT, Claude, and Google AI Overviews cite and rank your platform.",
+    "quickAnswer": "GEO requires three pillars: concise Direct Answer summary blocks above the fold, deep Schema.org JSON-LD entity graphs linking concepts to authoritative sources, and unambiguous step-by-step code solutions with typed parameters.",
+    "tags": ["geo", "aeo", "seo", "ai", "structured-data", "documentation"],
+    "content": [
+      {
+        "heading": "1. Anatomy of AI-Optimized Answers (AEO)",
+        "text": "Answer engines like Perplexity and SearchGPT extract concise factual declarations. Place an unambiguous 40 to 60 word Quick Answer box at the top of every technical guide.",
+        "code": "<section class=\"quick-answer-box\">\n  <strong>Quick Answer:</strong>\n  <p>To squash the last 3 commits in Git, run 'git reset --soft HEAD~3' followed by 'git commit -m \"Clean consolidated message\"'.</p>\n</section>"
+      },
+      {
+        "heading": "2. Schema.org JSON-LD Entity Graph Modeling",
+        "text": "Provide unambiguous machine-readable metadata connecting your articles to parent topics, software versions, and accredited author credentials.",
+        "code": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"TechArticle\",\n  \"headline\": \"Mastering Modern Git\",\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Arun Neupane\",\n    \"jobTitle\": \"CTO and Lead Architect\",\n    \"worksFor\": { \"@type\": \"Organization\", \"name\": \"Sajilo Digital Pvt. Ltd.\" }\n  },\n  \"about\": [{ \"@type\": \"SoftwareApplication\", \"name\": \"Git\" }]\n}"
+      },
+      {
+        "heading": "3. Formatting Code and Technical Data for LLM Ingestion",
+        "text": "Avoid rendering commands inside canvas elements or obfuscated spans. Use semantic pre and code blocks with explicit language tags and copy tokens.",
+        "code": "<pre><code class=\"language-bash\">git rebase -i HEAD~3</code></pre>"
+      },
+      {
+        "heading": "4. Establishing Entity Authority with Real-World References",
+        "text": "Include verified software version numbers, official standard references (POSIX, RFC, W3C), and real-world system case studies to boost citation weighting in LLM training and retrieval pipelines.",
+        "code": "// Reference official specifications and verified version constraints\n// e.g., POSIX IEEE Std 1003.1, RFC 9110 HTTP Semantics, Next.js 15.x API specifications."
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What is the difference between SEO, AEO, and GEO?",
+        "answer": "SEO optimizes content for traditional 10-blue-link search engine result pages. AEO optimizes content for direct single-answer extraction in voice assistants and featured snippets. GEO optimizes content for generative AI engines (Perplexity, ChatGPT, Gemini) to cite, synthesize, and recommend your platform in conversational answers."
+      },
+      {
+        "question": "Do AI search engines execute JavaScript when crawling?",
+        "answer": "Many AI crawlers and fast scrapers prefer static HTML or server-rendered output. Ensuring critical text and JSON-LD schemas are present in the initial HTML payload maximizes visibility."
+      },
+      {
+        "question": "Why are FAQ schemas critical for GEO?",
+        "answer": "FAQPage structured data maps question-to-answer entity pairs in JSON-LD format, making it effortless for LLMs to extract validated answers without parsing ambiguity."
+      },
+      {
+        "question": "How often should technical documentation be updated for AI freshness algorithms?",
+        "answer": "Update dateModified in your schema whenever framework versions change (e.g., React 19, Next.js 15) to signal relevance to retrieval systems."
+      }
+    ],
+    "relatedCommands": [
+      "git log --oneline",
+      "npm test",
+      "pnpm build"
+    ]
+  }
+]
