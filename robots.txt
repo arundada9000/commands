@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://arunneupane.vercel.app/sitemap.xml
+Sitemap: https://easycommands.vercel.app/sitemap.xml
