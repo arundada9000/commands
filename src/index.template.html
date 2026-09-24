@@ -1047,9 +1047,60 @@
       .wall-preset-btn:hover { background: var(--chip-hover); }
       .wall-preset-btn.is-active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
 
+      /* Floating Scroll to Top */
+      .scroll-top-btn {
+        position: fixed;
+        bottom: calc(var(--status-h) + 14px);
+        right: 20px;
+        z-index: 80;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 14px 0 12px;
+        border-radius: var(--r-pill);
+        background: var(--elev-2);
+        border: 1px solid var(--hair-strong);
+        color: var(--txt);
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-pop);
+        -webkit-backdrop-filter: var(--blur);
+        backdrop-filter: var(--blur);
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(12px) scale(0.94);
+        pointer-events: none;
+        transition: opacity 0.22s var(--ease), transform 0.22s var(--ease), background 0.16s, color 0.16s, border-color 0.16s, box-shadow 0.16s;
+      }
+      .scroll-top-btn.is-visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+      .scroll-top-btn:hover {
+        background: var(--accent);
+        color: var(--accent-hi);
+        border-color: var(--accent);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+        transform: translateY(-2px) scale(1.02);
+      }
+      .scroll-top-btn:active {
+        transform: translateY(0) scale(0.97);
+      }
+      @media (max-width: 600px) {
+        .scroll-top-btn {
+          right: 14px;
+          bottom: calc(var(--status-h) + 10px);
+          height: 34px;
+          padding: 0 10px;
+        }
+      }
+
       /* Context Menu */
       .ctxmenu {
-        position: fixed; z-index: 120; min-width: 210px;
+        position: fixed; z-index: 120; min-width: 220px;
         border-radius: var(--r-md); background: var(--elev-2);
         -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
         border: 1px solid var(--hair-strong); box-shadow: var(--shadow-pop);
@@ -1057,13 +1108,30 @@
         opacity: 0; transform: scale(0.95); transition: opacity 0.16s var(--ease), transform 0.16s var(--ease);
       }
       .ctxmenu.is-open { opacity: 1; transform: scale(1); }
+      .ctx-header {
+        padding: 6px 10px 4px;
+        font-size: 0.72rem; font-weight: 700;
+        letter-spacing: 0.05em; color: var(--txt-3);
+        text-transform: uppercase;
+        user-select: none;
+      }
       .ctxmenu button {
-        display: flex; align-items: center; gap: 10px;
-        padding: 8px 12px; border-radius: 8px; font-size: 0.86rem; font-weight: 500;
-        color: var(--txt); text-align: left;
+        display: flex; align-items: center; gap: 9px;
+        padding: 7px 10px; border-radius: 8px; font-size: 0.84rem; font-weight: 500;
+        color: var(--txt); text-align: left; width: 100%;
+        transition: background 0.12s, color 0.12s;
+        cursor: pointer;
+      }
+      .ctxmenu button svg { flex-shrink: 0; opacity: 0.85; }
+      .ctxmenu button .ctx-shortcut {
+        margin-left: auto; font-size: 0.72rem; font-family: var(--font-mono);
+        color: var(--txt-3); opacity: 0.8;
       }
       .ctxmenu button:hover { background: var(--accent); color: var(--accent-hi); }
+      .ctxmenu button:hover svg { opacity: 1; color: var(--accent-hi); }
+      .ctxmenu button:hover .ctx-shortcut { color: var(--accent-hi); opacity: 0.9; }
       .ctxmenu hr { border: none; border-top: 1px solid var(--hair); margin: 3px 0; }
+
 
       /* Toast */
       .toast {
@@ -1478,6 +1546,14 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         </div>
       </div>
     </div>
+
+    <!-- Floating Scroll to Top (Home) -->
+    <button type="button" class="scroll-top-btn" id="btnScrollTop" aria-label="Scroll to top of page" title="Scroll to top (Home)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M12 19V5M12 5L6 11M12 5L18 11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Top</span>
+    </button>
 
     <!-- Custom iOS Context Menu -->
     <div class="ctxmenu" id="ctxMenu" role="menu" hidden></div>
@@ -1911,6 +1987,14 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         grid.innerHTML = html;
       }
 
+      function closeArticleReader() {
+        var reader = document.getElementById("articleReaderContainer");
+        var grid = document.getElementById("articlesGrid");
+        if (reader) reader.hidden = true;
+        if (grid) grid.hidden = false;
+        try { history.replaceState(null, "", "#articles"); } catch (e) {}
+      }
+
       function openArticleReader(slug) {
         var blog = BLOGS.find(function (b) { return b.slug === slug || b.id === slug; });
         if (!blog) return;
@@ -1998,10 +2082,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
             '</div>' +
           '</article>';
 
-        document.getElementById("btnReaderBack").onclick = function () {
-          reader.hidden = true;
-          grid.hidden = false;
-        };
+        document.getElementById("btnReaderBack").onclick = closeArticleReader;
 
         // Code copy delegation inside reader
         reader.querySelectorAll(".copy-snippet-btn").forEach(function (btn) {
@@ -2329,19 +2410,43 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           openArticleReader(slug);
         });
 
-        // Article Reading Scroll Progress
+        // Article Reading Scroll Progress & Floating Scroll to Top
         var scrollContainer = document.getElementById("scrollContainer");
+        var btnScrollTop = document.getElementById("btnScrollTop");
+
         scrollContainer.addEventListener("scroll", function () {
+          closeContextMenu();
+          var sTop = scrollContainer.scrollTop;
+          if (btnScrollTop) {
+            btnScrollTop.classList.toggle("is-visible", sTop > 200);
+          }
           var pBar = document.getElementById("readerProgressBar");
           if (pBar && !document.getElementById("articleReaderContainer").hidden) {
             var reader = document.getElementById("articleReaderContainer");
             var max = reader.offsetHeight - scrollContainer.clientHeight;
             if (max > 0) {
-              var pct = Math.min(100, Math.max(0, Math.round((scrollContainer.scrollTop / max) * 100)));
+              var pct = Math.min(100, Math.max(0, Math.round((sTop / max) * 100)));
               pBar.style.width = pct + "%";
             }
           }
         });
+
+        if (btnScrollTop) {
+          btnScrollTop.addEventListener("click", function () {
+            scrollContainer.scrollTo({ top: 0, behavior: "smooth" });
+            AudioEngine.click();
+          });
+        }
+
+        var brandEl = document.querySelector(".brand");
+        if (brandEl) {
+          brandEl.style.cursor = "pointer";
+          brandEl.title = "Scroll to top";
+          brandEl.addEventListener("click", function () {
+            scrollContainer.scrollTo({ top: 0, behavior: "smooth" });
+            AudioEngine.click();
+          });
+        }
 
         // Card Actions Delegation
         document.getElementById("deckResults").addEventListener("click", function (ev) {
@@ -2615,13 +2720,15 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           setTimeout(function () { location.reload(); }, 600);
         };
 
-        // Global Keyboard Shortcuts (1, 2, 3 tabs, arrows, search, settings, palette)
+        // Global Keyboard Shortcuts (1, 2, 3 tabs, arrows, search, settings, palette, Home, Esc)
         document.addEventListener("keydown", function (ev) {
           var isInput = ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA" || ev.target.tagName === "SELECT";
           if (ev.key === "Escape") {
             closePalette();
             closeSettings();
             closeContextMenu();
+            var reader = document.getElementById("articleReaderContainer");
+            if (reader && !reader.hidden) closeArticleReader();
           }
           if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === "k") {
             ev.preventDefault();
@@ -2634,6 +2741,12 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           if (!isInput && ev.key === "/") {
             ev.preventDefault();
             document.getElementById("searchInput").focus();
+          }
+          if (!isInput && ev.key === "Home") {
+            ev.preventDefault();
+            var sc = document.getElementById("scrollContainer");
+            if (sc) sc.scrollTo({ top: 0, behavior: "smooth" });
+            AudioEngine.click();
           }
           if (!isInput && (ev.key === "1" || ev.key === "2" || ev.key === "3")) {
             if (ev.key === "1") switchView("commands");
@@ -2795,62 +2908,217 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
       }
 
       /* ------------------------------------------------------------- */
-      /* Custom Context Menu                                           */
+      /* Custom Context Menu (Page-Wide & Context-Aware)               */
       /* ------------------------------------------------------------- */
       var ctxTargetCard = null;
+
       document.addEventListener("contextmenu", function (ev) {
+        // Allow native context menu inside regular input fields
+        if (ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA") {
+          if (!ev.target.classList.contains("card-ph-input")) return;
+        }
+
+        ev.preventDefault();
+        var menu = document.getElementById("ctxMenu");
         var card = ev.target.closest(".card");
+        var reader = ev.target.closest("#articleReaderContainer") || (!document.getElementById("articleReaderContainer").hidden && ev.target.closest("#viewArticles"));
+        var api = ev.target.closest("#viewApi");
+
+        var html = "";
+
         if (card) {
-          ev.preventDefault();
           ctxTargetCard = card;
-          var menu = document.getElementById("ctxMenu");
           var id = card.getAttribute("data-id");
           var isFav = favSet.has(id);
+          var tool = (card.getAttribute("data-tool") || "Command").toUpperCase();
 
-          menu.innerHTML =
-            '<button type="button" data-ctx="copy">Copy Command</button>' +
-            '<button type="button" data-ctx="fav">' + (isFav ? "Unstar Command" : "Star Command") + '</button>' +
-            '<button type="button" data-ctx="link">Copy Direct Card Link</button>' +
+          html =
+            '<div class="ctx-header">' + escapeHtml(tool) + ' COMMAND</div>' +
+            '<button type="button" data-ctx="copy">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>Copy Command</span><span class="ctx-shortcut">Enter</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="fav">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (isFav ? 'currentColor' : 'none') + '"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>' + (isFav ? "Unstar Command" : "Star Command") + '</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="link">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Copy Direct Card Link</span>' +
+            '</button>' +
             '<hr />' +
-            '<button type="button" data-ctx="api">Inspect in API Explorer</button>' +
-            '<button type="button" data-ctx="share">Share View Link</button>';
-
-          menu.hidden = false;
-          menu.style.left = Math.min(ev.clientX, window.innerWidth - 220) + "px";
-          menu.style.top = Math.min(ev.clientY, window.innerHeight - 190) + "px";
-          requestAnimationFrame(function () { menu.classList.add("is-open"); });
+            '<button type="button" data-ctx="api">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="16 18 22 12 16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="8 6 2 12 8 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '<span>Inspect in API Explorer</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="share">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="2"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>Share View URL</span>' +
+            '</button>';
+        } else if (reader && !document.getElementById("articleReaderContainer").hidden) {
+          ctxTargetCard = null;
+          html =
+            '<div class="ctx-header">ARTICLE READER</div>' +
+            '<button type="button" data-ctx="back-articles">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '<span>Back to Guides</span><span class="ctx-shortcut">Esc</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="copy-article-link">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Copy Article Link</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="scroll-top">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5L6 11M12 5L18 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '<span>Scroll to Top</span><span class="ctx-shortcut">Home</span>' +
+            '</button>' +
+            '<hr />' +
+            '<button type="button" data-ctx="view-commands">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2"/><line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="2"/><line x1="8" y1="16" x2="12" y2="16" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>Switch to Commands</span><span class="ctx-shortcut">1</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="theme">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><path d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Cycle Theme</span>' +
+            '</button>';
+        } else if (api && S.view === "api") {
+          ctxTargetCard = null;
+          html =
+            '<div class="ctx-header">API PLAYGROUND</div>' +
+            '<button type="button" data-ctx="exec-api">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="5 3 19 12 5 21 5 3" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>Execute Query</span><span class="ctx-shortcut">Enter</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="copy-api-res">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>Copy Response JSON</span>' +
+            '</button>' +
+            '<hr />' +
+            '<button type="button" data-ctx="view-commands">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>Switch to Commands</span><span class="ctx-shortcut">1</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="theme">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><path d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Cycle Theme</span>' +
+            '</button>';
+        } else {
+          ctxTargetCard = null;
+          html =
+            '<div class="ctx-header">COMMAND DECK</div>' +
+            '<button type="button" data-ctx="search">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.6-3.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Search Spotlight</span><span class="ctx-shortcut">/</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="palette">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="15" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 10H16M8 14H12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Command Palette</span><span class="ctx-shortcut">Mod+K</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="scroll-top">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M12 5L6 11M12 5L18 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '<span>Scroll to Top</span><span class="ctx-shortcut">Home</span>' +
+            '</button>' +
+            '<hr />' +
+            '<button type="button" data-ctx="theme">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><path d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5M5.3 5.3L6.7 6.7M17.3 17.3L18.7 18.7M18.7 5.3L17.3 6.7M6.7 17.3L5.3 18.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Cycle Theme</span><span class="ctx-shortcut">Mod+Shift+T</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="wallpaper">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18" fill="currentColor"/></svg>' +
+              '<span>Customize Wallpaper...</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="settings">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="3.5" r="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="2"/><path d="M12 2.5V4.8M12 19.2V21.5M2.5 12H4.8M19.2 12H21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+              '<span>Preferences...</span><span class="ctx-shortcut">Mod+,</span>' +
+            '</button>' +
+            '<hr />' +
+            '<button type="button" data-ctx="install">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3V15M12 15L7 10M12 15L17 10M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '<span>Install PWA App</span>' +
+            '</button>' +
+            '<button type="button" data-ctx="whoami">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2"/></svg>' +
+              '<span>About Developer</span>' +
+            '</button>';
         }
+
+        menu.innerHTML = html;
+        menu.hidden = false;
+
+        var menuWidth = 240;
+        var menuHeight = 310;
+        var x = Math.min(ev.clientX, window.innerWidth - menuWidth - 12);
+        var y = Math.min(ev.clientY, window.innerHeight - menuHeight - 12);
+        menu.style.left = Math.max(10, x) + "px";
+        menu.style.top = Math.max(10, y) + "px";
+
+        AudioEngine.click();
+        requestAnimationFrame(function () { menu.classList.add("is-open"); });
       });
 
       document.getElementById("ctxMenu").onclick = function (ev) {
         var btn = ev.target.closest("button");
-        if (!btn || !ctxTargetCard) return;
+        if (!btn) return;
         var act = btn.getAttribute("data-ctx");
-        var id = ctxTargetCard.getAttribute("data-id");
         closeContextMenu();
+        AudioEngine.click();
 
-        if (act === "copy") {
+        if (act === "copy" && ctxTargetCard) {
           var cmd = composeCommand(ctxTargetCard);
           copyText(cmd, "Copied command");
-        } else if (act === "fav") {
+        } else if (act === "fav" && ctxTargetCard) {
+          var id = ctxTargetCard.getAttribute("data-id");
           if (favSet.has(id)) { favSet.delete(id); favs = favs.filter(function (f) { return f !== id; }); }
           else { favSet.add(id); favs.push(id); AudioEngine.fav(); }
           localStorage.setItem("cd.deck.favs", JSON.stringify(favs));
           renderCommands();
-        } else if (act === "link") {
-          var deepUrl = location.origin + location.pathname + "#" + id;
+        } else if (act === "link" && ctxTargetCard) {
+          var deepUrl = location.origin + location.pathname + "#" + ctxTargetCard.getAttribute("data-id");
           copyText(deepUrl, "Direct card link copied");
-        } else if (act === "api") {
+        } else if (act === "api" && ctxTargetCard) {
           switchView("api");
           document.getElementById("restQueryInput").value = "search=" + encodeURIComponent(ctxTargetCard.getAttribute("data-command"));
           executeClientRest("/api/commands", "search=" + encodeURIComponent(ctxTargetCard.getAttribute("data-command")));
         } else if (act === "share") {
           copyText(location.href, "View link copied");
+        } else if (act === "scroll-top") {
+          var sc = document.getElementById("scrollContainer");
+          if (sc) sc.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (act === "search") {
+          switchView("commands");
+          document.getElementById("searchInput").focus();
+        } else if (act === "palette") {
+          openPalette();
+        } else if (act === "settings") {
+          openSettings();
+        } else if (act === "theme") {
+          cycleTheme();
+        } else if (act === "wallpaper") {
+          openSettings();
+          var wSec = document.getElementById("prefWallpaperSection");
+          if (wSec) wSec.scrollIntoView({ behavior: "smooth" });
+        } else if (act === "install") {
+          var btnInst = document.getElementById("btnStatusInstall");
+          if (btnInst) btnInst.click();
+        } else if (act === "whoami") {
+          toast("Built by Arun Neupane · CTO at Sajilo Digital, Butwal, Nepal");
+        } else if (act === "view-commands") {
+          switchView("commands");
+        } else if (act === "back-articles") {
+          closeArticleReader();
+        } else if (act === "copy-article-link") {
+          copyText(location.href, "Article link copied");
+        } else if (act === "exec-api") {
+          var execBtn = document.getElementById("btnExecRest");
+          if (execBtn) execBtn.click();
+        } else if (act === "copy-api-res") {
+          var resTxt = document.getElementById("apiResponseViewer").textContent;
+          copyText(resTxt, "API response copied");
         }
       };
 
       function closeContextMenu() {
         var menu = document.getElementById("ctxMenu");
+        if (!menu || menu.hidden) return;
         menu.classList.remove("is-open");
         setTimeout(function () { menu.hidden = true; }, 160);
       }
