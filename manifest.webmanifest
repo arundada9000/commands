@@ -1,0 +1,43 @@
+{
+  "name": "Command Deck: Developer Knowledge Engine",
+  "short_name": "CommandDeck",
+  "description": "Federated developer command reference and authoritative technical guides for Windows, macOS, Linux, Git, npm, pnpm, VS Code, Next.js, and DaVinci Resolve.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090d16",
+  "theme_color": "#d97706",
+  "categories": ["developer", "productivity", "utilities", "education"],
+  "icons": [
+    {
+      "src": "./assets/img/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Git Commands",
+      "short_name": "Git",
+      "description": "Quick access to Git command reference",
+      "url": "./index.html#git",
+      "icons": [{ "src": "./assets/img/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Articles and Guides",
+      "short_name": "Articles",
+      "description": "Browse deep-dive technical engineering guides",
+      "url": "./index.html#articles",
+      "icons": [{ "src": "./assets/img/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "API Explorer",
+      "short_name": "API",
+      "description": "Explore REST, GraphQL, and tRPC mock APIs",
+      "url": "./index.html#api",
+      "icons": [{ "src": "./assets/img/logo.svg", "sizes": "any" }]
+    }
+  ]
+}
