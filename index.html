@@ -157,10 +157,10 @@
         --custom-bg-color: transparent;
 
         /* Structure */
-        --topbar-h: 68px;
-        --toolbar-h: 56px;
+        --topbar-h: 54px;
+        --toolbar-h: 50px;
         --status-h: 34px;
-        --content-w: 980px;
+        --content-w: 1140px;
         --blur: blur(24px) saturate(180%);
         --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
         --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -338,11 +338,12 @@
       .topbar {
         position: relative;
         flex: 0 0 var(--topbar-h);
+        height: var(--topbar-h);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: var(--s3);
-        padding: 0 var(--s5);
+        padding: 0 var(--s4);
         border-bottom: 1px solid var(--hair);
         background: var(--elev-2);
         -webkit-backdrop-filter: var(--blur);
@@ -350,31 +351,31 @@
         z-index: 30;
       }
       .brand {
-        display: flex; align-items: center; gap: var(--s3);
+        display: flex; align-items: center; gap: 8px;
         min-width: 0; flex-shrink: 0;
       }
       .brand-mark {
-        width: 34px; height: 34px; border-radius: 9px;
+        width: 30px; height: 30px; border-radius: 8px;
         background: var(--accent); display: flex; align-items: center; justify-content: center;
-        color: var(--accent-hi); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        color: var(--accent-hi); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       }
-      .brand-mark svg { width: 20px; height: 20px; }
+      .brand-mark svg { width: 17px; height: 17px; }
       .brand-title {
         font-family: var(--font-display);
-        font-size: 1.05rem; font-weight: 700;
+        font-size: 1rem; font-weight: 700;
         letter-spacing: -0.02em; white-space: nowrap;
       }
 
       /* iOS Segmented Control in Topbar */
       .segmented-nav {
         display: flex; align-items: center; gap: 2px;
-        background: var(--code-bg); padding: 3px; border-radius: var(--r-sm);
+        background: var(--code-bg); padding: 2px; border-radius: var(--r-sm);
         border: 1px solid var(--hair);
       }
       .seg-btn {
         display: flex; align-items: center; gap: 6px;
-        padding: 6px 14px; border-radius: 8px;
-        font-size: 0.84rem; font-weight: 600; color: var(--txt-2);
+        padding: 5px 12px; border-radius: 7px;
+        font-size: 0.82rem; font-weight: 600; color: var(--txt-2);
         transition: all 0.2s var(--ease);
       }
       .seg-btn:hover { color: var(--txt); }
@@ -383,7 +384,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       }
       .seg-badge {
-        font-size: 0.72rem; padding: 1px 6px; border-radius: var(--r-pill);
+        font-size: 0.7rem; padding: 1px 5px; border-radius: var(--r-pill);
         background: var(--chip); color: var(--txt-2);
       }
       .seg-btn.is-active .seg-badge {
@@ -391,52 +392,77 @@
       }
 
       .top-actions {
-        display: flex; align-items: center; gap: var(--s2);
+        display: flex; align-items: center; gap: 6px;
         flex-shrink: 0;
       }
       .btn-icon {
         display: flex; align-items: center; justify-content: center;
-        width: 36px; height: 36px; border-radius: var(--r-sm);
+        width: 32px; height: 32px; border-radius: 8px;
         background: var(--code-bg); border: 1px solid var(--hair);
         color: var(--txt-2); transition: all 0.2s var(--ease);
       }
       .btn-icon:hover { background: var(--chip-hover); color: var(--txt); }
 
       /* ============================================================== */
-      /* Toolbar (Search, Tool Select, Quick Chips)                     */
+      /* Unified Omnibar Header (Tool Select, Search, Quick Chips)      */
       /* ============================================================== */
       .toolbar {
         position: relative;
         flex: 0 0 auto;
-        display: flex;
-        flex-direction: column;
-        gap: var(--s2);
-        padding: var(--s3) var(--s5);
+        padding: 6px var(--s4);
         border-bottom: 1px solid var(--hair);
         background: var(--elev-2);
         -webkit-backdrop-filter: var(--blur);
         backdrop-filter: var(--blur);
         z-index: 20;
       }
-      .search-row {
-        display: flex; align-items: center; gap: var(--s3);
-        max-width: var(--content-w); width: 100%; margin: 0 auto;
+      .omnibar-inner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: var(--content-w);
+        width: 100%;
+        margin: 0 auto;
       }
+      .omnibar-left {
+        flex-shrink: 0;
+      }
+      .tool-select {
+        appearance: none;
+        height: 36px;
+        padding: 0 30px 0 12px;
+        border: 1px solid var(--hair-strong);
+        border-radius: var(--r-md);
+        background: var(--elev) var(--select-caret) right 10px center / 13px 13px no-repeat;
+        color: var(--txt);
+        font-family: inherit; font-size: 0.84rem; font-weight: 600;
+        cursor: pointer; outline: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+      }
+      .tool-select:hover { border-color: var(--accent); }
+      .tool-select:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+      .tool-select option { color: var(--txt); background: var(--elev); font-weight: 500; }
+
       .search-box {
-        position: relative; flex: 1; display: flex; align-items: center;
+        position: relative;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        min-width: 160px;
       }
       .search-ico {
-        position: absolute; left: 14px; pointer-events: none;
+        position: absolute; left: 12px; pointer-events: none;
         color: var(--txt-3); display: flex; align-items: center;
       }
       .search-input {
-        width: 100%; height: 42px;
-        padding: 0 42px 0 42px;
+        width: 100%; height: 36px;
+        padding: 0 36px 0 34px;
         border-radius: var(--r-md);
         border: 1px solid var(--hair-strong);
         background: var(--elev);
-        color: var(--txt); font-size: 0.92rem;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        color: var(--txt); font-size: 0.88rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
         transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
       }
       .search-input:focus {
@@ -444,24 +470,21 @@
         box-shadow: 0 0 0 3px var(--accent-soft);
       }
       .search-clear {
-        position: absolute; right: 12px;
+        position: absolute; right: 8px;
         display: flex; align-items: center; justify-content: center;
-        width: 22px; height: 22px; border-radius: var(--r-pill);
+        width: 20px; height: 20px; border-radius: var(--r-pill);
         background: var(--chip); color: var(--txt-2);
       }
       .search-clear:hover { background: var(--chip-hover); color: var(--txt); }
 
-      .tool-bar-controls {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: var(--s3); flex-wrap: wrap;
-        max-width: var(--content-w); width: 100%; margin: 0 auto;
-      }
       .quick-chips {
-        display: flex; align-items: center; gap: 6px;
+        display: flex; align-items: center; gap: 4px;
+        flex-shrink: 0;
       }
       .tool-chip {
-        display: flex; align-items: center; gap: 6px;
-        padding: 6px 14px; border-radius: var(--r-pill);
+        display: flex; align-items: center; gap: 5px;
+        height: 36px;
+        padding: 0 12px; border-radius: var(--r-md);
         background: var(--code-bg); border: 1px solid var(--hair);
         font-size: 0.82rem; font-weight: 600; color: var(--txt-2);
         white-space: nowrap; transition: all 0.2s var(--ease);
@@ -471,24 +494,29 @@
         background: var(--accent); border-color: var(--accent);
         color: var(--accent-hi); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
-      .tool-chip-badge { font-size: 0.72rem; opacity: 0.85; }
+      .tool-chip-badge { font-size: 0.7rem; opacity: 0.85; }
 
-      .tool-select {
-        appearance: none;
-        height: 36px;
-        padding: 0 34px 0 14px;
-        border: 1px solid var(--hair-strong);
-        border-radius: var(--r-pill);
-        background: var(--elev) var(--select-caret) right 12px center / 14px 14px no-repeat;
-        color: var(--txt);
-        font-family: inherit; font-size: 0.86rem; font-weight: 600;
-        cursor: pointer; outline: none;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-        transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+      @media (max-width: 780px) {
+        .omnibar-inner {
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .search-box {
+          order: 1;
+          width: 100%;
+          flex: 1 1 100%;
+        }
+        .omnibar-left {
+          order: 2;
+          flex: 1;
+        }
+        .tool-select {
+          width: 100%;
+        }
+        .quick-chips {
+          order: 3;
+        }
       }
-      .tool-select:hover { border-color: var(--accent); }
-      .tool-select:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-      .tool-select option { color: var(--txt); background: var(--elev); font-weight: 500; }
 
       /* Search Hit Highlighting */
       .search-hit {
@@ -504,19 +532,19 @@
       /* ============================================================== */
       .scroll-container {
         flex: 1; overflow-y: auto; overflow-x: hidden;
-        padding: var(--s5);
+        padding: var(--s3) var(--s4);
       }
       .main-content {
         max-width: var(--content-w); margin: 0 auto;
-        display: flex; flex-direction: column; gap: var(--s4);
+        display: flex; flex-direction: column; gap: var(--s3);
       }
 
       /* View Sections */
-      .view-section { display: flex; flex-direction: column; gap: var(--s4); }
+      .view-section { display: flex; flex-direction: column; gap: var(--s3); }
 
       /* Command Card (iOS HIG Inset) */
       .cards-grid {
-        display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
         gap: var(--s3);
       }
       @media (max-width: 680px) {
@@ -1092,19 +1120,19 @@
         <!-- Top Actions -->
         <div class="top-actions">
           <button type="button" class="btn-icon" id="btnTheme" title="Cycle Theme (Mod+Shift+T)" aria-label="Toggle Theme">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/>
               <path d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5M5.3 5.3L6.7 6.7M17.3 17.3L18.7 18.7M18.7 5.3L17.3 6.7M6.7 17.3L5.3 18.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
           </button>
           <button type="button" class="btn-icon" id="btnPalette" title="Command Palette (Mod+K)" aria-label="Open Command Palette">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <rect x="3.5" y="4.5" width="17" height="15" rx="3" stroke="currentColor" stroke-width="1.8"/>
               <path d="M8 10H16M8 14H12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
           </button>
           <button type="button" class="btn-icon" id="btnSettings" title="Settings (Mod+,)" aria-label="Settings">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.8"/>
               <path d="M12 2.5V4.8M12 19.2V21.5M2.5 12H4.8M19.2 12H21.5M5.5 5.5L7.1 7.1M16.9 16.9L18.5 18.5M18.5 5.5L16.9 7.1M7.1 16.9L5.5 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
@@ -1112,12 +1140,27 @@
         </div>
       </header>
 
-      <!-- Toolbar (Search, Tool Select, Quick Chips) -->
+      <!-- Unified Omnibar (Tool Select, Search, Quick Chips) -->
       <div class="toolbar" id="toolbar">
-        <div class="search-row">
+        <div class="omnibar-inner">
+          <div class="omnibar-left">
+            <select class="tool-select" id="toolSelect" aria-label="Filter by Tool Set">
+              <option value="all">All Tools (1,946)</option>
+              <option value="git">Git (265)</option>
+              <option value="mac">macOS (298)</option>
+              <option value="linux">Linux (287)</option>
+              <option value="windows">Windows (254)</option>
+              <option value="pnpm">pnpm (180)</option>
+              <option value="npm">npm (84)</option>
+              <option value="vscode">VS Code (248)</option>
+              <option value="nextjs">Next.js (142)</option>
+              <option value="davinci">DaVinci Resolve (188)</option>
+            </select>
+          </div>
+
           <div class="search-box">
             <span class="search-ico" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/>
                 <path d="m20 20-3.6-3.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
               </svg>
@@ -1126,37 +1169,22 @@
               type="text"
               class="search-input"
               id="searchInput"
-              placeholder="Search commands (e.g. @git rebase, #setup, exact phrase)"
+              placeholder="Search commands... (@git rebase, #setup)"
               autocomplete="off"
               spellcheck="false"
             />
             <button type="button" class="search-clear" id="searchClear" aria-label="Clear Search" hidden>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
                 <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
-        </div>
 
-        <div class="tool-bar-controls" id="toolBarControls">
           <div class="quick-chips" id="quickChips">
             <button type="button" class="tool-chip is-active" data-tool="all">All <span class="tool-chip-badge" id="badgeAll">1,946</span></button>
             <button type="button" class="tool-chip" data-tool="recent">Recent <span class="tool-chip-badge" id="badgeRecent">0</span></button>
             <button type="button" class="tool-chip" data-tool="favorites">Stars <span class="tool-chip-badge" id="badgeFavs">0</span></button>
           </div>
-
-          <select class="tool-select" id="toolSelect" aria-label="Filter by Tool Set">
-            <option value="all">All Tool Collections (1,946)</option>
-            <option value="git">Git (265)</option>
-            <option value="mac">macOS (298)</option>
-            <option value="linux">Linux (287)</option>
-            <option value="windows">Windows (254)</option>
-            <option value="pnpm">pnpm (180)</option>
-            <option value="npm">npm (84)</option>
-            <option value="vscode">VS Code (248)</option>
-            <option value="nextjs">Next.js (142)</option>
-            <option value="davinci">DaVinci Resolve (188)</option>
-          </select>
         </div>
       </div>
 
