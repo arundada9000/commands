@@ -147,14 +147,19 @@
         --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, "Cascadia Code",
           Consolas, "Roboto Mono", Menlo, monospace;
 
-        /* Ambient imagery */
+        /* Ambient imagery & Wallpaper Variables */
         --ambient-uri: /*__AMBIENT__*/;
         --ambient-opacity: 0;
+        --custom-wallpaper: var(--ambient-uri);
+        --custom-wallpaper-opacity: var(--ambient-opacity);
+        --custom-wallpaper-size: cover;
+        --custom-wallpaper-repeat: no-repeat;
+        --custom-bg-color: transparent;
 
         /* Structure */
         --topbar-h: 68px;
         --toolbar-h: 56px;
-        --status-h: 32px;
+        --status-h: 34px;
         --content-w: 980px;
         --blur: blur(24px) saturate(180%);
         --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -208,6 +213,7 @@
         --elev-2: rgba(24, 25, 31, 0.85);
         --hair: rgba(255, 255, 255, 0.1);
         --hair-strong: rgba(255, 255, 255, 0.18);
+        --select-caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23aeaeb6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
         --txt: #f5f5f7;
         --txt-2: #aeaeb6;
         --txt-3: #7c7c86;
@@ -239,6 +245,7 @@
         --elev-2: rgba(18, 21, 35, 0.86);
         --hair: rgba(255, 214, 158, 0.12);
         --hair-strong: rgba(255, 214, 158, 0.2);
+        --select-caret: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23ffb454' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
         --txt: #f2ede2;
         --txt-2: #b3ad9f;
         --txt-3: #7d7667;
@@ -286,13 +293,15 @@
         inset: 0;
         z-index: 0;
         pointer-events: none;
-        background-image: var(--ambient-uri);
-        background-size: cover;
+        background-image: var(--custom-wallpaper);
+        background-size: var(--custom-wallpaper-size);
+        background-repeat: var(--custom-wallpaper-repeat);
         background-position: center 18%;
-        opacity: var(--ambient-opacity);
+        opacity: var(--custom-wallpaper-opacity);
         filter: saturate(0.92) contrast(1.06) brightness(var(--ambient-brightness, 0.9));
         -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 62%, transparent 100%);
         mask-image: linear-gradient(180deg, transparent 0%, #000 26%, #000 62%, transparent 100%);
+        transition: opacity 0.3s var(--ease);
       }
       [data-theme="night"] .ambient { --ambient-brightness: 0.78; }
       [data-theme="graphite"] .ambient { --ambient-brightness: 0.85; }
@@ -349,7 +358,7 @@
         background: var(--accent); display: flex; align-items: center; justify-content: center;
         color: var(--accent-hi); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
-      .brand-mark img, .brand-mark svg { width: 20px; height: 20px; }
+      .brand-mark svg { width: 20px; height: 20px; }
       .brand-title {
         font-family: var(--font-display);
         font-size: 1.05rem; font-weight: 700;
@@ -399,7 +408,7 @@
       .btn-icon:hover { background: var(--chip-hover); color: var(--txt); }
 
       /* ============================================================== */
-      /* Toolbar (Search + Quick Tools)                                 */
+      /* Toolbar (Search, Tool Select, Quick Chips)                     */
       /* ============================================================== */
       .toolbar {
         position: relative;
@@ -426,12 +435,12 @@
         color: var(--txt-3); display: flex; align-items: center;
       }
       .search-input {
-        width: 100%; height: 44px;
+        width: 100%; height: 42px;
         padding: 0 42px 0 42px;
         border-radius: var(--r-md);
         border: 1px solid var(--hair-strong);
         background: var(--elev);
-        color: var(--txt); font-size: 0.95rem;
+        color: var(--txt); font-size: 0.92rem;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
       }
@@ -447,14 +456,17 @@
       }
       .search-clear:hover { background: var(--chip-hover); color: var(--txt); }
 
-      .tool-chips-row {
-        display: flex; align-items: center; gap: 6px;
-        overflow-x: auto; padding-bottom: 2px;
+      .tool-bar-controls {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: var(--s3); flex-wrap: wrap;
         max-width: var(--content-w); width: 100%; margin: 0 auto;
+      }
+      .quick-chips {
+        display: flex; align-items: center; gap: 6px;
       }
       .tool-chip {
         display: flex; align-items: center; gap: 6px;
-        padding: 6px 13px; border-radius: var(--r-pill);
+        padding: 6px 14px; border-radius: var(--r-pill);
         background: var(--code-bg); border: 1px solid var(--hair);
         font-size: 0.82rem; font-weight: 600; color: var(--txt-2);
         white-space: nowrap; transition: all 0.2s var(--ease);
@@ -464,9 +476,24 @@
         background: var(--accent); border-color: var(--accent);
         color: var(--accent-hi); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
-      .tool-chip-badge {
-        font-size: 0.72rem; opacity: 0.85;
+      .tool-chip-badge { font-size: 0.72rem; opacity: 0.85; }
+
+      .tool-select {
+        appearance: none;
+        height: 36px;
+        padding: 0 34px 0 14px;
+        border: 1px solid var(--hair-strong);
+        border-radius: var(--r-pill);
+        background: var(--elev) var(--select-caret) right 12px center / 14px 14px no-repeat;
+        color: var(--txt);
+        font-family: inherit; font-size: 0.86rem; font-weight: 600;
+        cursor: pointer; outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
       }
+      .tool-select:hover { border-color: var(--accent); }
+      .tool-select:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+      .tool-select option { color: var(--txt); background: var(--elev); font-weight: 500; }
 
       /* ============================================================== */
       /* Content View Area                                              */
@@ -482,17 +509,6 @@
 
       /* View Sections */
       .view-section { display: flex; flex-direction: column; gap: var(--s4); }
-
-      /* Group Inset Header */
-      .group-header {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: var(--s2) var(--s1); margin-top: var(--s2);
-      }
-      .group-title {
-        font-family: var(--font-display); font-size: 1.15rem; font-weight: 700;
-        letter-spacing: -0.01em; color: var(--txt);
-      }
-      .group-count { font-size: 0.8rem; color: var(--txt-3); }
 
       /* Command Card (iOS HIG Inset) */
       .cards-grid {
@@ -824,7 +840,7 @@
       }
 
       /* ============================================================== */
-      /* Statusline & Watermark                                          */
+      /* Statusline & Install Button                                    */
       /* ============================================================== */
       .statusline {
         position: relative;
@@ -844,8 +860,15 @@
         background: var(--accent-soft); color: var(--accent);
       }
       .status-right { display: flex; align-items: center; gap: var(--s3); }
-      .status-clock {
-        font-family: var(--font-mono); font-weight: 600; color: var(--txt);
+      .status-install-btn {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 3px 10px; border-radius: var(--r-pill);
+        background: var(--accent-bg); border: 1px solid var(--accent-soft);
+        color: var(--accent); font-size: 0.74rem; font-weight: 700;
+        transition: all 0.2s var(--ease);
+      }
+      .status-install-btn:hover {
+        background: var(--accent); color: var(--accent-hi);
       }
       .status-credit b { color: var(--txt-2); }
 
@@ -894,7 +917,7 @@
 
       .sheet {
         position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.98);
-        width: 90%; max-width: 520px; max-height: 85vh;
+        width: 90%; max-width: 560px; max-height: 88vh;
         border-radius: var(--r-lg); background: var(--elev); border: 1px solid var(--hair-strong);
         box-shadow: var(--shadow-pop); z-index: 100;
         display: flex; flex-direction: column; overflow: hidden;
@@ -911,13 +934,43 @@
         font-family: var(--font-display); font-size: 1.15rem; font-weight: 700;
       }
       .sheet-body {
-        padding: var(--s5); overflow-y: auto; display: flex; flex-direction: column; gap: var(--s4);
+        padding: var(--s5); overflow-y: auto; display: flex; flex-direction: column; gap: var(--s5);
+      }
+      .settings-section-title {
+        font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.05em; color: var(--txt-3); margin-bottom: var(--s2);
       }
       .settings-row {
         display: flex; align-items: center; justify-content: space-between;
-        font-size: 0.92rem; color: var(--txt);
+        gap: var(--s3); font-size: 0.92rem; color: var(--txt);
       }
       .settings-sub { font-size: 0.78rem; color: var(--txt-3); }
+
+      /* Wallpaper Customizer Styles */
+      .wallpaper-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 8px; margin-top: 6px;
+      }
+      .wall-color-btn {
+        height: 38px; border-radius: 8px; border: 1px solid var(--hair-strong);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem; font-weight: 600; color: #fff;
+        cursor: pointer; transition: transform 0.16s var(--ease), border-color 0.16s var(--ease);
+      }
+      .wall-color-btn:hover { transform: scale(1.04); }
+      .wall-color-btn.is-active { border: 2px solid var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
+      .wall-preset-grid {
+        display: grid; grid-template-columns: repeat(2, 1fr);
+        gap: 8px; margin-top: 6px;
+      }
+      .wall-preset-btn {
+        padding: 10px; border-radius: 8px; border: 1px solid var(--hair);
+        background: var(--code-bg); color: var(--txt); font-size: 0.82rem; font-weight: 600;
+        text-align: left; cursor: pointer; transition: all 0.2s var(--ease);
+      }
+      .wall-preset-btn:hover { background: var(--chip-hover); }
+      .wall-preset-btn.is-active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
 
       /* Context Menu */
       .ctxmenu {
@@ -939,7 +992,7 @@
 
       /* Toast */
       .toast {
-        position: fixed; bottom: 44px; left: 50%; transform: translateX(-50%) translateY(20px);
+        position: fixed; bottom: 48px; left: 50%; transform: translateX(-50%) translateY(20px);
         display: inline-flex; align-items: center; gap: 8px;
         padding: 8px 18px; border-radius: var(--r-pill);
         background: var(--elev); border: 1px solid var(--hair-strong);
@@ -951,31 +1004,6 @@
         opacity: 1; transform: translateX(-50%) translateY(0);
       }
 
-      /* PWA Install Banner */
-      .pwa-banner {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: var(--s3) var(--s4); border-radius: var(--r-md);
-        background: var(--accent-bg); border: 1px solid var(--accent-soft);
-        font-size: 0.88rem; color: var(--txt);
-      }
-      .pwa-install-btn {
-        padding: 6px 14px; border-radius: var(--r-sm);
-        background: var(--accent); color: var(--accent-hi);
-        font-weight: 700; font-size: 0.82rem;
-      }
-
-      /* 404 / Error State */
-      .not-found-state {
-        display: flex; flex-direction: column; align-items: center; text-align: center;
-        gap: var(--s4); padding: var(--s8) var(--s4);
-      }
-      .not-found-title {
-        font-family: var(--font-display); font-size: 1.75rem; font-weight: 700;
-      }
-      .not-found-desc {
-        font-size: 0.95rem; color: var(--txt-2); max-width: 480px;
-      }
-
       /* Density & Reduced Motion */
       body.is-dense .card { padding: var(--s3); }
       body.is-dense .card-command-box { padding: var(--s2) var(--s3); font-size: 0.82rem; }
@@ -985,7 +1013,7 @@
     </style>
   </head>
   <body>
-    <div class="ambient" aria-hidden="true"></div>
+    <div class="ambient" id="ambientBg" aria-hidden="true"></div>
 
     <div class="app" id="app">
       <!-- Topbar Header -->
@@ -1038,7 +1066,7 @@
         </div>
       </header>
 
-      <!-- Toolbar (Search & Tool Filter Chips) -->
+      <!-- Toolbar (Search, Tool Select, Quick Chips) -->
       <div class="toolbar" id="toolbar">
         <div class="search-row">
           <div class="search-box">
@@ -1064,19 +1092,25 @@
           </div>
         </div>
 
-        <div class="tool-chips-row" id="toolChipsRow">
-          <button type="button" class="tool-chip is-active" data-tool="all">All <span class="tool-chip-badge" id="badgeAll">1,946</span></button>
-          <button type="button" class="tool-chip" data-tool="recent">Recent <span class="tool-chip-badge" id="badgeRecent">0</span></button>
-          <button type="button" class="tool-chip" data-tool="favorites">Stars <span class="tool-chip-badge" id="badgeFavs">0</span></button>
-          <button type="button" class="tool-chip" data-tool="git">Git <span class="tool-chip-badge">265</span></button>
-          <button type="button" class="tool-chip" data-tool="mac">macOS <span class="tool-chip-badge">298</span></button>
-          <button type="button" class="tool-chip" data-tool="linux">Linux <span class="tool-chip-badge">287</span></button>
-          <button type="button" class="tool-chip" data-tool="windows">Windows <span class="tool-chip-badge">254</span></button>
-          <button type="button" class="tool-chip" data-tool="pnpm">pnpm <span class="tool-chip-badge">180</span></button>
-          <button type="button" class="tool-chip" data-tool="npm">npm <span class="tool-chip-badge">84</span></button>
-          <button type="button" class="tool-chip" data-tool="vscode">VS Code <span class="tool-chip-badge">248</span></button>
-          <button type="button" class="tool-chip" data-tool="nextjs">Next.js <span class="tool-chip-badge">142</span></button>
-          <button type="button" class="tool-chip" data-tool="davinci">DaVinci <span class="tool-chip-badge">188</span></button>
+        <div class="tool-bar-controls" id="toolBarControls">
+          <div class="quick-chips" id="quickChips">
+            <button type="button" class="tool-chip is-active" data-tool="all">All <span class="tool-chip-badge" id="badgeAll">1,946</span></button>
+            <button type="button" class="tool-chip" data-tool="recent">Recent <span class="tool-chip-badge" id="badgeRecent">0</span></button>
+            <button type="button" class="tool-chip" data-tool="favorites">Stars <span class="tool-chip-badge" id="badgeFavs">0</span></button>
+          </div>
+
+          <select class="tool-select" id="toolSelect" aria-label="Filter by Tool Set">
+            <option value="all">All Tool Collections (1,946)</option>
+            <option value="git">Git (265)</option>
+            <option value="mac">macOS (298)</option>
+            <option value="linux">Linux (287)</option>
+            <option value="windows">Windows (254)</option>
+            <option value="pnpm">pnpm (180)</option>
+            <option value="npm">npm (84)</option>
+            <option value="vscode">VS Code (248)</option>
+            <option value="nextjs">Next.js (142)</option>
+            <option value="davinci">DaVinci Resolve (188)</option>
+          </select>
         </div>
       </div>
 
@@ -1085,7 +1119,6 @@
         <main class="main-content" id="mainContent">
           <!-- View 1: Commands Deck -->
           <div class="view-section" id="viewCommands">
-            <div id="pwaBannerContainer"></div>
             <div id="deckResults"></div>
           </div>
 
@@ -1200,7 +1233,12 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           <span id="statusStats">1,946 commands</span>
         </div>
         <div class="status-right">
-          <span class="status-clock" id="statusClock">--:--:-- NPT</span>
+          <button type="button" class="status-install-btn" id="btnStatusInstall" aria-label="Install App">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3V15M12 15L7 10M12 15L17 10M4 19H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="statusInstallText">Install App</span>
+          </button>
           <span class="status-credit">Built by <b>Arun Neupane</b> · Sajilo Digital</span>
         </div>
       </footer>
@@ -1222,51 +1260,140 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
     <!-- Settings Sheet (Mod+,) -->
     <div class="sheet" id="settingsSheet" role="dialog" aria-modal="true" aria-label="Settings">
       <div class="sheet-head">
-        <h2 class="sheet-title">Preferences & Settings</h2>
+        <h2 class="sheet-title">Preferences & Appearance</h2>
         <button type="button" class="btn-icon" id="btnCloseSettings" aria-label="Close Settings">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </div>
       <div class="sheet-body">
-        <div class="settings-row">
-          <div>
-            <div>Theme</div>
-            <div class="settings-sub">Choose visual appearance</div>
+        <!-- Appearance Section -->
+        <div>
+          <div class="settings-section-title">Theme Mode</div>
+          <div class="settings-row">
+            <div>
+              <div>Color Scheme</div>
+              <div class="settings-sub">Choose visual theme profile</div>
+            </div>
+            <select class="api-select" id="settingsThemeSelect">
+              <option value="auto">Auto (Follow OS)</option>
+              <option value="daylight">Daylight (iOS Light)</option>
+              <option value="graphite">Graphite (Space Gray)</option>
+              <option value="night">Night Shift (Amber Glow)</option>
+            </select>
           </div>
-          <select class="api-select" id="settingsThemeSelect">
-            <option value="auto">Auto (Follow OS)</option>
-            <option value="daylight">Daylight (iOS Light)</option>
-            <option value="graphite">Graphite (Space Gray)</option>
-            <option value="night">Night Shift (Amber Glow)</option>
-          </select>
         </div>
-        <div class="settings-row">
-          <div>
-            <div>Dense Layout</div>
-            <div class="settings-sub">Compact card padding for high information density</div>
+
+        <!-- Wallpaper & Background Customization Section -->
+        <div>
+          <div class="settings-section-title">Wallpaper & Background</div>
+          
+          <!-- Preset Background Colors -->
+          <div style="margin-bottom: 12px;">
+            <div style="font-size: 0.84rem; font-weight: 600; color: var(--txt-2); margin-bottom: 4px;">Preset Background Colors</div>
+            <div class="wallpaper-grid" id="wallColorGrid">
+              <button type="button" class="wall-color-btn is-active" data-wallcolor="default" style="background:#0a0c14;">Default</button>
+              <button type="button" class="wall-color-btn" data-wallcolor="#070d1a" style="background:#070d1a;">Midnight</button>
+              <button type="button" class="wall-color-btn" data-wallcolor="#111620" style="background:#111620;">Slate</button>
+              <button type="button" class="wall-color-btn" data-wallcolor="#091410" style="background:#091410;">Forest</button>
+              <button type="button" class="wall-color-btn" data-wallcolor="#140818" style="background:#140818;">Wine</button>
+              <button type="button" class="wall-color-btn" data-wallcolor="#181006" style="background:#181006;">Amber</button>
+              <button type="button" class="wall-color-btn" data-wallcolor="#f2f3f6" style="background:#f2f3f6; color:#1c1c1e;">Daylight</button>
+              <button type="button" class="wall-color-btn" data-wallcolor="#20222a" style="background:#20222a;">Titanium</button>
+            </div>
           </div>
-          <input type="checkbox" id="settingsDenseCheck" />
+
+          <!-- Custom Color Picker -->
+          <div class="settings-row" style="margin-bottom: 12px;">
+            <div>
+              <div>Custom Color</div>
+              <div class="settings-sub">Pick any custom HEX / RGB shade</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="color" id="customColorPicker" value="#0a0c14" style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer; background:none;" />
+              <input type="text" class="api-param-input" id="customColorHex" placeholder="#0a0c14" style="width:90px; height:36px; text-transform:uppercase;" />
+            </div>
+          </div>
+
+          <!-- Preset Patterns / Ambient Wallpapers -->
+          <div style="margin-bottom: 12px;">
+            <div style="font-size: 0.84rem; font-weight: 600; color: var(--txt-2); margin-bottom: 4px;">Preset Background Ambience</div>
+            <div class="wall-preset-grid" id="wallPresetGrid">
+              <button type="button" class="wall-preset-btn is-active" data-preset="photo">Code Night (Default)</button>
+              <button type="button" class="wall-preset-btn" data-preset="radial">Radial Glow</button>
+              <button type="button" class="wall-preset-btn" data-preset="dots">Subtle Dot Matrix</button>
+              <button type="button" class="wall-preset-btn" data-preset="grid">Isometric Grid</button>
+              <button type="button" class="wall-preset-btn" data-preset="none">Solid Clean (No Image)</button>
+            </div>
+          </div>
+
+          <!-- Custom Image Wallpaper (File or URL) -->
+          <div style="margin-bottom: 12px;">
+            <div style="font-size: 0.84rem; font-weight: 600; color: var(--txt-2); margin-bottom: 4px;">Custom Wallpaper Image</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; gap:8px;">
+                <input type="url" class="api-param-input" id="customWallpaperUrl" placeholder="Enter image URL (https://...)" style="height:36px;" />
+                <button type="button" class="read-btn" id="btnApplyWallUrl" style="padding:0 14px; height:36px;">Apply</button>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.84rem;">
+                <span style="color:var(--txt-3);">Or upload local image:</span>
+                <input type="file" id="customWallpaperFile" accept="image/*" style="font-size:0.8rem; color:var(--txt-2); width:200px;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Wallpaper Opacity Slider -->
+          <div class="settings-row" style="margin-bottom: 12px;">
+            <div>
+              <div>Wallpaper Opacity</div>
+              <div class="settings-sub">Tune background image intensity</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="range" id="wallpaperOpacityRange" min="0" max="100" value="40" style="width:120px; cursor:pointer;" />
+              <span id="wallpaperOpacityLabel" style="font-size:0.82rem; font-family:var(--font-mono); width:32px;">40%</span>
+            </div>
+          </div>
+
+          <button type="button" class="read-btn" id="btnResetWallpaper" style="width:100%; justify-content:center; padding:8px 0; background:var(--code-bg); color:var(--txt-2);">
+            Reset Wallpaper to Defaults
+          </button>
         </div>
-        <div class="settings-row">
-          <div>
-            <div>Sound Effects</div>
-            <div class="settings-sub">Subtle audio cues on copy and interaction</div>
+
+        <!-- Ergonomics Section -->
+        <div>
+          <div class="settings-section-title">Ergonomics & Controls</div>
+          <div class="settings-row">
+            <div>
+              <div>Dense Layout</div>
+              <div class="settings-sub">Compact card padding for high information density</div>
+            </div>
+            <input type="checkbox" id="settingsDenseCheck" />
           </div>
-          <input type="checkbox" id="settingsSoundCheck" />
+          <div class="settings-row">
+            <div>
+              <div>Sound Effects</div>
+              <div class="settings-sub">Subtle audio cues on copy and interaction</div>
+            </div>
+            <input type="checkbox" id="settingsSoundCheck" />
+          </div>
+          <div class="settings-row">
+            <div>
+              <div>Haptic Feedback</div>
+              <div class="settings-sub">Tactile vibration on mobile copy gestures</div>
+            </div>
+            <input type="checkbox" id="settingsHapticsCheck" checked />
+          </div>
         </div>
-        <div class="settings-row">
-          <div>
-            <div>Haptic Feedback</div>
-            <div class="settings-sub">Tactile vibration on mobile copy gestures</div>
+
+        <!-- Data Reset Section -->
+        <div>
+          <div class="settings-section-title">Maintenance</div>
+          <div class="settings-row">
+            <div>
+              <div>Reset Local Data</div>
+              <div class="settings-sub">Clear favorites, recent history, custom wallpapers, and settings</div>
+            </div>
+            <button type="button" class="status-install-btn" id="btnResetData" style="background:#ff453a; color:#fff; border:none; padding:6px 14px;">Reset All</button>
           </div>
-          <input type="checkbox" id="settingsHapticsCheck" checked />
-        </div>
-        <div class="settings-row">
-          <div>
-            <div>Reset Local Data</div>
-            <div class="settings-sub">Clear favorites, recent history, and custom settings</div>
-          </div>
-          <button type="button" class="pwa-install-btn" id="btnResetData" style="background:#ff453a;">Reset All</button>
         </div>
       </div>
     </div>
@@ -1294,7 +1421,14 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         tool: "all",
         articleCategory: "all",
         query: "",
-        apiMode: "rest"
+        apiMode: "rest",
+        wallpaper: {
+          color: "default",
+          customColor: "",
+          preset: "photo",
+          customImg: "",
+          opacity: 40
+        }
       };
 
       try {
@@ -1503,12 +1637,27 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         document.getElementById("badgeFavs").textContent = favSet.size;
         document.getElementById("badgeRecent").textContent = recents.length;
 
+        // Sync toolSelect dropdown value
+        var selectEl = document.getElementById("toolSelect");
+        if (selectEl) {
+          if (TOOL_ORDER.indexOf(S.tool) >= 0 || S.tool === "all") {
+            selectEl.value = S.tool;
+          } else {
+            selectEl.value = "all";
+          }
+        }
+
+        // Sync quick chips active state
+        document.querySelectorAll(".quick-chips .tool-chip").forEach(function (c) {
+          c.classList.toggle("is-active", c.getAttribute("data-tool") === S.tool);
+        });
+
         if (total === 0) {
           container.innerHTML =
             '<div class="not-found-state">' +
               '<h3 class="not-found-title">No matching commands</h3>' +
               '<p class="not-found-desc">Try clearing your filters or typing a different search phrase in the spotlight bar.</p>' +
-              '<button type="button" class="pwa-install-btn" id="btnResetSearch">Clear Search</button>' +
+              '<button type="button" class="status-install-btn" id="btnResetSearch" style="padding:8px 18px; font-size:0.88rem;">Clear Search</button>' +
             '</div>';
           var rBtn = document.getElementById("btnResetSearch");
           if (rBtn) rBtn.onclick = function () {
@@ -1829,7 +1978,9 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         document.getElementById("viewCommands").hidden = viewName !== "commands";
         document.getElementById("viewArticles").hidden = viewName !== "articles";
         document.getElementById("viewApi").hidden = viewName !== "api";
-        document.getElementById("toolbar").hidden = viewName === "api";
+        
+        // Hide the command toolbar in articles and API explorer views
+        document.getElementById("toolbar").hidden = viewName !== "commands";
 
         document.getElementById("statusMode").textContent = viewName.toUpperCase();
 
@@ -1843,7 +1994,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
       }
 
       /* ------------------------------------------------------------- */
-      /* Theme System                                                  */
+      /* Wallpaper & Theme Customization Engine                        */
       /* ------------------------------------------------------------- */
       function applyTheme() {
         var eff = S.theme;
@@ -1854,6 +2005,71 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         var meta = document.querySelector('meta[name="theme-color"]');
         var colors = { daylight: "#f2f3f6", graphite: "#0c0d10", night: "#0a0c14" };
         if (meta) meta.setAttribute("content", colors[eff] || colors.daylight);
+      }
+
+      function applyWallpaperSettings() {
+        var wall = S.wallpaper || {};
+        var amb = document.getElementById("ambientBg");
+        if (!amb) return;
+
+        // Apply background color if custom
+        if (wall.color && wall.color !== "default") {
+          document.body.style.setProperty("--ground", wall.color);
+          document.body.style.setProperty("--ground-2", wall.color);
+        } else {
+          document.body.style.removeProperty("--ground");
+          document.body.style.removeProperty("--ground-2");
+        }
+
+        // Apply wallpaper preset or custom image
+        var opacity = (wall.opacity != null ? wall.opacity : 40) / 100;
+        
+        if (wall.customImg) {
+          document.documentElement.style.setProperty("--custom-wallpaper", 'url("' + wall.customImg + '")');
+          document.documentElement.style.setProperty("--custom-wallpaper-size", "cover");
+          document.documentElement.style.setProperty("--custom-wallpaper-repeat", "no-repeat");
+          document.documentElement.style.setProperty("--custom-wallpaper-opacity", opacity);
+        } else if (wall.preset === "none") {
+          document.documentElement.style.setProperty("--custom-wallpaper", "none");
+          document.documentElement.style.setProperty("--custom-wallpaper-opacity", "0");
+        } else if (wall.preset === "radial") {
+          document.documentElement.style.setProperty("--custom-wallpaper", "radial-gradient(circle at 50% 30%, rgba(255, 180, 84, 0.35), transparent 70%)");
+          document.documentElement.style.setProperty("--custom-wallpaper-size", "cover");
+          document.documentElement.style.setProperty("--custom-wallpaper-repeat", "no-repeat");
+          document.documentElement.style.setProperty("--custom-wallpaper-opacity", opacity);
+        } else if (wall.preset === "dots") {
+          document.documentElement.style.setProperty("--custom-wallpaper", "radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)");
+          document.documentElement.style.setProperty("--custom-wallpaper-size", "24px 24px");
+          document.documentElement.style.setProperty("--custom-wallpaper-repeat", "repeat");
+          document.documentElement.style.setProperty("--custom-wallpaper-opacity", opacity);
+        } else if (wall.preset === "grid") {
+          document.documentElement.style.setProperty("--custom-wallpaper", "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)");
+          document.documentElement.style.setProperty("--custom-wallpaper-size", "32px 32px");
+          document.documentElement.style.setProperty("--custom-wallpaper-repeat", "repeat");
+          document.documentElement.style.setProperty("--custom-wallpaper-opacity", opacity);
+        } else {
+          // Default photo
+          document.documentElement.style.setProperty("--custom-wallpaper", "var(--ambient-uri)");
+          document.documentElement.style.setProperty("--custom-wallpaper-size", "cover");
+          document.documentElement.style.setProperty("--custom-wallpaper-repeat", "no-repeat");
+          document.documentElement.style.setProperty("--custom-wallpaper-opacity", opacity);
+        }
+
+        // Sync UI settings controls
+        var colorBtns = document.querySelectorAll(".wall-color-btn");
+        colorBtns.forEach(function (btn) {
+          btn.classList.toggle("is-active", btn.getAttribute("data-wallcolor") === (wall.color || "default"));
+        });
+
+        var presetBtns = document.querySelectorAll(".wall-preset-btn");
+        presetBtns.forEach(function (btn) {
+          btn.classList.toggle("is-active", btn.getAttribute("data-preset") === (wall.preset || "photo"));
+        });
+
+        var opRange = document.getElementById("wallpaperOpacityRange");
+        var opLabel = document.getElementById("wallpaperOpacityLabel");
+        if (opRange) opRange.value = wall.opacity != null ? wall.opacity : 40;
+        if (opLabel) opLabel.textContent = (wall.opacity != null ? wall.opacity : 40) + "%";
       }
 
       function cycleTheme() {
@@ -1871,6 +2087,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
       /* ------------------------------------------------------------- */
       document.addEventListener("DOMContentLoaded", function () {
         applyTheme();
+        applyWallpaperSettings();
         document.body.classList.toggle("is-dense", S.dense);
 
         // Navigation Tabs
@@ -1898,12 +2115,19 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           else if (S.view === "articles") renderArticles();
         });
 
-        // Tool Chips
-        document.getElementById("toolChipsRow").addEventListener("click", function (ev) {
+        // Tool Select Dropdown Handler
+        var toolSelectEl = document.getElementById("toolSelect");
+        if (toolSelectEl) {
+          toolSelectEl.addEventListener("change", function () {
+            S.tool = toolSelectEl.value;
+            renderCommands();
+          });
+        }
+
+        // Quick Chips Handler (All, Recent, Stars)
+        document.getElementById("quickChips").addEventListener("click", function (ev) {
           var chip = ev.target.closest(".tool-chip");
           if (!chip) return;
-          document.querySelectorAll(".tool-chip").forEach(function (c) { c.classList.remove("is-active"); });
-          chip.classList.add("is-active");
           S.tool = chip.getAttribute("data-tool");
           renderCommands();
         });
@@ -2067,6 +2291,98 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           S.haptics = this.checked;
           localStorage.setItem("cd.deck.settings", JSON.stringify(S));
         };
+
+        // Wallpaper Color Palette Handler
+        document.getElementById("wallColorGrid").addEventListener("click", function (ev) {
+          var btn = ev.target.closest(".wall-color-btn");
+          if (!btn) return;
+          var color = btn.getAttribute("data-wallcolor");
+          S.wallpaper = S.wallpaper || {};
+          S.wallpaper.color = color;
+          localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          applyWallpaperSettings();
+          toast("Background color updated");
+        });
+
+        // Custom Color Picker Handler
+        var customColorPicker = document.getElementById("customColorPicker");
+        var customColorHex = document.getElementById("customColorHex");
+        customColorPicker.oninput = function () {
+          customColorHex.value = this.value;
+          S.wallpaper = S.wallpaper || {};
+          S.wallpaper.color = this.value;
+          localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          applyWallpaperSettings();
+        };
+        customColorHex.onchange = function () {
+          var val = this.value.trim();
+          if (val.indexOf("#") !== 0) val = "#" + val;
+          customColorPicker.value = val;
+          S.wallpaper = S.wallpaper || {};
+          S.wallpaper.color = val;
+          localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          applyWallpaperSettings();
+        };
+
+        // Wallpaper Ambient Preset Handler
+        document.getElementById("wallPresetGrid").addEventListener("click", function (ev) {
+          var btn = ev.target.closest(".wall-preset-btn");
+          if (!btn) return;
+          var preset = btn.getAttribute("data-preset");
+          S.wallpaper = S.wallpaper || {};
+          S.wallpaper.preset = preset;
+          S.wallpaper.customImg = "";
+          localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          applyWallpaperSettings();
+          toast("Ambience preset applied");
+        });
+
+        // Custom Wallpaper Image URL
+        document.getElementById("btnApplyWallUrl").onclick = function () {
+          var url = document.getElementById("customWallpaperUrl").value.trim();
+          if (!url) return;
+          S.wallpaper = S.wallpaper || {};
+          S.wallpaper.customImg = url;
+          localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          applyWallpaperSettings();
+          toast("Custom wallpaper applied");
+        };
+
+        // Custom Wallpaper File Upload
+        document.getElementById("customWallpaperFile").onchange = function (e) {
+          var file = e.target.files && e.target.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function (ev) {
+            S.wallpaper = S.wallpaper || {};
+            S.wallpaper.customImg = ev.target.result;
+            localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+            applyWallpaperSettings();
+            toast("Local image applied as wallpaper");
+          };
+          reader.readAsDataURL(file);
+        };
+
+        // Wallpaper Opacity Range Slider
+        var opRange = document.getElementById("wallpaperOpacityRange");
+        var opLabel = document.getElementById("wallpaperOpacityLabel");
+        opRange.oninput = function () {
+          opLabel.textContent = this.value + "%";
+          S.wallpaper = S.wallpaper || {};
+          S.wallpaper.opacity = parseInt(this.value, 10);
+          localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          applyWallpaperSettings();
+        };
+
+        // Reset Wallpaper Defaults
+        document.getElementById("btnResetWallpaper").onclick = function () {
+          S.wallpaper = { color: "default", customColor: "", preset: "photo", customImg: "", opacity: 40 };
+          localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          applyWallpaperSettings();
+          toast("Wallpaper reset to default");
+        };
+
+        // Reset All Data
         document.getElementById("btnResetData").onclick = function () {
           localStorage.clear();
           favSet.clear();
@@ -2077,7 +2393,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
 
         // Global Shortcuts
         document.addEventListener("keydown", function (ev) {
-          var isInput = ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA";
+          var isInput = ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA" || ev.target.tagName === "SELECT";
           if (ev.key === "Escape") {
             closePalette();
             closeSettings();
@@ -2106,27 +2422,33 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           });
         }
 
-        // PWA Install Prompt Banner
+        // PWA Install Button in Statusline
         var deferredPrompt = null;
         window.addEventListener("beforeinstallprompt", function (e) {
           e.preventDefault();
           deferredPrompt = e;
-          var banner = document.getElementById("pwaBannerContainer");
-          if (banner) {
-            banner.innerHTML =
-              '<div class="pwa-banner">' +
-                '<div>Install Command Deck for instant offline desktop and mobile access</div>' +
-                '<button type="button" class="pwa-install-btn" id="btnInstallPwa">Install App</button>' +
-              '</div>';
-            document.getElementById("btnInstallPwa").onclick = function () {
-              deferredPrompt.prompt();
-              deferredPrompt.userChoice.then(function () {
-                banner.innerHTML = "";
-                deferredPrompt = null;
-              });
-            };
+          var statusBtn = document.getElementById("btnStatusInstall");
+          if (statusBtn) {
+            statusBtn.classList.add("is-available");
           }
         });
+
+        var btnStatusInstall = document.getElementById("btnStatusInstall");
+        if (btnStatusInstall) {
+          btnStatusInstall.onclick = function () {
+            if (deferredPrompt) {
+              deferredPrompt.prompt();
+              deferredPrompt.userChoice.then(function (choice) {
+                if (choice.outcome === "accepted") {
+                  toast("App installed successfully");
+                }
+                deferredPrompt = null;
+              });
+            } else {
+              toast("To install: use browser menu or 'Add to Home Screen'");
+            }
+          };
+        }
 
         // Initialize Hash Routing
         var hash = location.hash.replace(/^#/, "");
@@ -2141,17 +2463,6 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         } else {
           switchView("commands");
         }
-
-        // Live Nepal Clock Statusline
-        var nptFormatter = new Intl.DateTimeFormat("en-GB", {
-          timeZone: "Asia/Kathmandu", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true
-        });
-        function updateClock() {
-          var el = document.getElementById("statusClock");
-          if (el) el.textContent = nptFormatter.format(new Date()) + " NPT";
-        }
-        updateClock();
-        setInterval(updateClock, 1000);
 
         // App Ready Fade-in
         document.getElementById("app").classList.add("is-ready");
@@ -2184,6 +2495,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           { title: "Browse Technical Articles & Guides", act: function () { switchView("articles"); } },
           { title: "Open API Explorer (REST / GraphQL / tRPC)", act: function () { switchView("api"); } },
           { title: "Cycle Appearance Theme", act: cycleTheme },
+          { title: "Customize Wallpaper & Colors", act: function () { openSettings(); } },
           { title: "View Starred Favorites", act: function () { S.tool = "favorites"; switchView("commands"); } },
           { title: "View Recent Commands", act: function () { S.tool = "recent"; switchView("commands"); } }
         ];
@@ -2320,7 +2632,6 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           console.log("%c OS:        Web / PWA (Standalone)", "color:#f5f5f7");
           console.log("%c Commands:  1,946 across 9 toolsets", "color:#f5f5f7");
           console.log("%c Articles:  10 Deep-Dive Technical Guides", "color:#f5f5f7");
-          console.log("%c Timezone:  NPT (UTC+5:45)", "color:#f5f5f7");
           console.log("%c Storage:   Zero-Network Embedded DB", "color:#f5f5f7");
           console.log("%c========================================", "color:#ffb454");
           return "Telemetry OK";
