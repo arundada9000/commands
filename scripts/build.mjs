@@ -1,7 +1,7 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { normalizeAll, serializeForInline, writeBuild } from "./core.mjs";
+import { normalizeAll, loadBlogs, serializeForInline, serializeBlogsForInline, writeBuild } from "./core.mjs";
 
 const root = join(fileURLToPath(new URL(".", import.meta.url)), "..");
 const b64 = (rel, mime) => `data:${mime};base64,` + readFileSync(join(root, rel)).toString("base64");
@@ -25,15 +25,18 @@ function injectAssets(template) {
 }
 
 const items = normalizeAll();
-const serialized = serializeForInline(items);
+const blogs = loadBlogs();
+const serializedCommands = serializeForInline(items);
+const serializedBlogs = serializeBlogsForInline(blogs);
 
 let template = readFileSync(join(root, "src/index.template.html"), "utf8");
 template = injectAssets(template);
-const built = writeBuild(serialized, template, "index.html");
+const built = writeBuild(serializedCommands, serializedBlogs, template, "index.html");
 
 const bytes = Buffer.byteLength(built, "utf8");
 console.log(`Built index.html (${bytes.toLocaleString()} bytes)`);
 console.log(`Federated ${items.length.toLocaleString()} commands`);
+console.log(`Loaded ${blogs.length} technical guides (SEO/AEO/GEO)`);
 console.log(
   `Tools: ${new Set(items.map((i) => i.tool)).size} | Groups: ${
     new Set(items.filter((i) => i.group).map((i) => i.group)).size

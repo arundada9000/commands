@@ -1,80 +1,67 @@
-# Command Deck
+# Command Deck: Developer Knowledge Engine
 
-A single-file command reference that federates nine tool collections into one searchable, copy-friendly app. Opens straight from disk, works fully offline, and feels like a native iOS app.
+A single-file developer command reference and authoritative technical guides platform that federates nine tool collections into one searchable, copy-ready iOS HIG interface. Opens straight from disk, works fully offline, and installs as a Progressive Web App (PWA).
 
-Built with plain HTML, CSS, and JS. The shipped artifact is one self-contained `index.html` (all styles, scripts, fonts, and data inlined), so it runs from `file://` with zero dependencies and zero network calls.
+## Features
 
-![Command Deck on desktop](assets/screenshots/deck-desktop.png)
+- **1,946 commands across 9 tool sets**: Windows, macOS, Linux, Git, npm, pnpm, VS Code, Next.js, DaVinci Resolve.
+- **10 In-Depth Technical Guides (SEO / AEO / GEO)**: Deep-dive playbooks and cheat sheets covering Git rebasing, macOS terminal ergonomics, Linux server hardening with systemd, Next.js 15 App Router caching, pnpm monorepos, VS Code keyboard navigation, PowerShell automation, DaVinci Resolve color grading, offline-first PWA architecture, and Generative Engine Optimization.
+- **AEO and GEO Structured Data**: Every article includes concise Direct Answer TL;DR boxes, structured FAQs, and Schema.org JSON-LD graph metadata (`TechArticle`, `BlogPosting`, `FAQPage`, `Person`, `SoftwareApplication`).
+- **Interactive Data and API Explorer**: Live client-side simulation of REST API endpoints (`/api/commands`, `/api/blogs`, `/api/tools`, `/api/stats`), GraphQL schema queries, and tRPC type-safe procedure routers.
+- **Spotlight Search**:
+  - `@git` filters to a specific toolset
+  - `#setup` filters by tag
+  - `"exact phrase"` forces contiguous matching
+- **Inline Placeholder Filling**: Commands with `<placeholder>` arguments render editable fields, allowing immediate copying of filled values.
+- **Tactile Gestures and Microinteractions**: Double-click to copy, swipe-to-copy, custom iOS frosted glass context menu on right-click or long-press.
+- **4 Themes**: Daylight (iOS light), Graphite (Space Gray dark), Night Shift (amber glow dark), and Auto (OS-synchronized).
+- **Settings Sheet** (`Mod+,`): Dense layout toggle, sound effects, tactile haptics, and data reset.
+- **Progressive Web App (PWA)**: Complete offline caching via `sw.js`, `manifest.webmanifest`, standalone launch mode, and home screen install banner.
+- **Live Nepal Time Statusline**: Status bar with live ticking clock (UTC+5:45 NPT) and author watermark.
+- **Console Easter Eggs**: Open DevTools and type `help`, `whoami`, `neofetch`, `github`, `hire`, `secret`, `api`, or `cls`.
 
-![Command Deck on a phone](assets/screenshots/deck-mobile.png)
+## Getting Started
 
-## What's inside
+1. Open `index.html` directly in any modern web browser (Chrome, Safari, Edge, Firefox).
+2. It works instantly offline with zero server requirements, zero npm dependencies, and zero build step at runtime.
 
-- **1,946 commands across 9 tool sets**: Windows, macOS, Linux, Git, npm, pnpm, VS Code, Next.js, DaVinci Resolve
-- **Spotlight-style search** with operators:
-  - `@git` locks a tool set
-  - `#setup` filters a tag
-  - `"exact phrase"` forces contiguous matches
-  - `-word` drops results
-- **Copy in one gesture**: click or tap a card, or focus it with the keyboard and press Enter. Result is copied to the clipboard and briefly flashes
-- **Inline placeholder filling**: commands with `<placeholder>` arguments render editable fields, and the copy uses the filled values
-- **Per-card actions**: copy, fill variants, star, and "More" (expand the note)
-- **Chips**: All, Recent, Stars, with live counts
-- **Tool select** in the toolbar to jump to a whole tool set
-- **Command palette** (`Mod+K`) with search plus quick actions
-- **Custom context menus**: on cards and on the page itself
-- **4 themes**: Daylight, Graphite, Night Shift, and Auto (follows your OS)
-- **Settings sheet** (`Mod+,`): dense mode, usage counts, reduce motion, sound, haptics, and remappable shortcuts
-- **Persistent in `localStorage`**: favorites, recents, use counts, settings
-- **Global hotkeys** (when not typing): `A` all tools, `S` stars, `R` recents, `/` focus search, `Shift+/` help, `Mod+K` palette, `Mod+,` settings, `Mod+Shift+T` theme, `Mod+Shift+F` favorites
-- **Custom not-found state** for unknown `#routes`
-
-## Getting started
-
-1. Open `index.html` in any modern browser (Chrome, Edge, Firefox, Safari).
-2. That's it. No install, no server, no build step at runtime.
-
-To reset local data (favorites, settings, recent history): open Settings and choose "Reset all data".
-
-## Development
-
-Source lives in `src/index.template.html` with a data placeholder; the command data is federated from `commands/*.json` at build time. Edits to the template require a rebuild.
+## Development Pipeline
 
 ```bash
-node scripts/build.mjs            # federalize data, emit index.html
-node tests/validate.mjs           # 7 checks: schema, embed sync, core logic
-node "C:\Users\arunn\.claude\skills\impeccable\scripts\detect.mjs" index.html --viewport 1280x800
+# Build standalone index.html with federated datasets, assets, and guides
+node scripts/build.mjs
+
+# Run full test suite (11 test suites covering schema, compression, APIs, and strict rules)
+node tests/validate.mjs
 ```
 
-Notes:
-
-- Never modify anything under `commands/`; it is the owned upstream dataset.
-- The command data is embedded via a compact dictionary serializer (about 4 to 5 times smaller than raw JSON).
-- `index.html` is a build artifact; hand edits are overwritten on the next build.
-
-## Project layout
+## Project Structure
 
 ```
-commands/                 upstream JSON collections (9 tool sets, read only)
-scripts/core.mjs          federation, normalization, grouping, serialization, search scoring
-scripts/build.mjs         build pipeline (template + data to index.html)
-tests/validate.mjs        node validation suite
-src/index.template.html   the app: design system, components, interactions, data placeholder
-rules/tracker.md          progress tracker
-PRODUCT.md                product record and constraints
-plan.md                   build plan
-LICENSE                   MIT
+commands/                 Upstream JSON collections (9 tool sets, read only)
+data/blogs.json           10 comprehensive technical guides for SEO, AEO, and GEO
+manifest.webmanifest      Web App Manifest for standalone PWA installation
+sw.js                     Service worker with offline caching strategy
+sitemap.xml               Search engine sitemap with tool and article URLs
+robots.txt                Search engine crawl directives
+scripts/core.mjs          Core data pipeline, compression, scoring, and API simulation
+scripts/build.mjs         Build pipeline compiling assets, commands, and guides
+tests/validate.mjs        Validation test suite
+src/index.template.html   Source application template
+rules/tracker.md          Project progress and decisions tracker
+plan.md                   Master architecture and build plan
+LICENSE                   Proprietary license
 ```
 
-## Console easter eggs
+## Author and Developer Attribution
 
-Open DevTools and type: `help`, `whoami`, `neofetch`, `github`, `secret`, `hire`, `cls`.
-
-## Credits
-
-- Fonts: Space Grotesk and JetBrains Mono, embedded under the SIL Open Font License 1.1.
-- Night Shift wallpaper: photograph from Pexels (free license), used as an ambient layer in dark themes.
+- **Developer**: Arun Neupane (arundada9000)
+- **Role**: CTO and Lead Architect at Sajilo Digital Pvt. Ltd.
+- **Location**: Butwal, Lumbini, Nepal (UTC+5:45)
+- **Portfolio**: https://arunneupane.vercel.app
+- **GitHub**: https://github.com/arundada9000
 
 ## License
 
-MIT. See `LICENSE`.
+Proprietary License. Copyright (c) 2026 Arun Neupane. All rights reserved.
+Everything in this repository is licensed exclusively to Arun Neupane.

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 /* ------------------------------------------------------------------ */
@@ -37,6 +37,13 @@ export function loadRaw() {
     out[tool.id] = { tool, raw: JSON.parse(text) };
   }
   return out;
+}
+
+export function loadBlogs() {
+  const blogPath = join("data", "blogs.json");
+  if (!existsSync(blogPath)) return [];
+  const text = readFileSync(blogPath, "utf8");
+  return JSON.parse(text);
 }
 
 export function normalizeEntry(entry, tool, idx) {
@@ -154,8 +161,6 @@ export function decode(serialized) {
    field; rank favors title > command > tool > tag > description. */
 export function scoreItem(item, tokens) {
   const q = (t) => t.toLowerCase();
-  const hit = (needleParts) =>
-    needleParts.some((p) => q(p).includes(token));
   let total = 0;
   for (const tokenRaw of tokens) {
     const token = q(tokenRaw);
@@ -194,6 +199,50 @@ export function filterAndRank(items, query) {
     .map((x) => x.item);
 }
 
+/* Blog search scoring and ranking */
+export function scoreBlog(blog, tokens) {
+  const q = (t) => (t || "").toLowerCase();
+  let total = 0;
+  for (const tokenRaw of tokens) {
+    const token = q(tokenRaw);
+    let score = -Infinity;
+    const t = q(blog.title);
+    const s = q(blog.summary);
+    const a = q(blog.quickAnswer);
+    const c = q(blog.category);
+    const tl = q(blog.tool);
+    const tags = (blog.tags || []).map((x) => q(x));
+
+    if (t.includes(token)) score = Math.max(score, 10);
+    if (a.includes(token)) score = Math.max(score, 8);
+    if (s.includes(token)) score = Math.max(score, 6);
+    if (tags.some((x) => x.includes(token))) score = Math.max(score, 5);
+    if (c.includes(token) || tl.includes(token)) score = Math.max(score, 4);
+
+    if (score < 0) return null;
+    total += score;
+  }
+  return total;
+}
+
+export function filterAndRankBlogs(blogs, query = "", category = "", tool = "") {
+  let filtered = blogs;
+  if (category && category !== "all") {
+    filtered = filtered.filter((b) => b.category.toLowerCase() === category.toLowerCase());
+  }
+  if (tool && tool !== "all") {
+    filtered = filtered.filter((b) => b.tool.toLowerCase() === tool.toLowerCase());
+  }
+  const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (!tokens.length) return filtered;
+
+  return filtered
+    .map((blog) => ({ blog, s: scoreBlog(blog, tokens) }))
+    .filter((x) => x.s !== null)
+    .sort((a, b) => b.s - a.s || a.blog.title.localeCompare(b.blog.title))
+    .map((x) => x.blog);
+}
+
 export function availableJsonFiles() {
   return readdirSync("commands")
     .filter((f) => f.endsWith(".json"))
@@ -204,15 +253,306 @@ export function serializeForInline(items) {
   return JSON.stringify(serialize(items)).replace(/</g, "\\u003c");
 }
 
-export function writeBuild(serializedText, templateContent, outPath) {
-  const marker = "/*__COMMAND_DECK_DATA__*/";
-  if (!templateContent.includes(marker)) {
-    throw new Error(`Template missing data marker: ${marker}`);
+export function serializeBlogsForInline(blogs) {
+  return JSON.stringify(blogs).replace(/</g, "\\u003c");
+}
+
+export function writeBuild(serializedCommands, serializedBlogs, templateContent, outPath) {
+  const markerCmd = "/*__COMMAND_DECK_DATA__*/";
+  const markerBlogs = "/*__COMMAND_DECK_BLOGS__*/";
+
+  if (!templateContent.includes(markerCmd)) {
+    throw new Error(`Template missing data marker: ${markerCmd}`);
   }
-  const built = templateContent.replace(
-    marker,
-    `const DECK_DATA = ${serializedText};\n`
+
+  let built = templateContent.replace(
+    markerCmd,
+    `const DECK_DATA = ${serializedCommands};\n`
   );
+
+  if (built.includes(markerBlogs)) {
+    built = built.replace(
+      markerBlogs,
+      `const DECK_BLOGS = ${serializedBlogs};\n`
+    );
+  }
+
   writeFileSync(outPath, built, "utf8");
   return built;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Data & API Simulation Engine (REST, GraphQL, tRPC)                */
+/* ------------------------------------------------------------------ */
+
+export function executeMockRestApi(method, path, params = {}, items = [], blogs = []) {
+  const normPath = path.toLowerCase().replace(/\/$/, "");
+  const page = Math.max(1, parseInt(params.page || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(params.limit || "20", 10)));
+  const search = (params.search || "").trim();
+  const tool = (params.tool || "").trim();
+  const tag = (params.tag || "").trim();
+  const category = (params.category || "").trim();
+
+  // Route: /api/stats
+  if (normPath === "/api/stats") {
+    return {
+      status: 200,
+      data: {
+        totalCommands: items.length,
+        totalBlogs: blogs.length,
+        totalTools: TOOLS.length,
+        tools: TOOLS.map((t) => ({
+          id: t.id,
+          label: t.label,
+          commandCount: items.filter((i) => i.tool === t.id).length,
+          articleCount: blogs.filter((b) => b.tool === t.id).length,
+        })),
+        author: {
+          name: "Arun Neupane",
+          role: "CTO and Lead Architect",
+          company: "Sajilo Digital Pvt. Ltd.",
+          location: "Butwal, Lumbini, Nepal",
+          timezone: "UTC+5:45 (NPT)",
+          website: "https://arunneupane.vercel.app",
+        },
+        engineVersion: "2.0.0",
+        timestamp: new Date().toISOString(),
+      },
+    };
+  }
+
+  // Route: /api/tools
+  if (normPath === "/api/tools") {
+    return {
+      status: 200,
+      data: TOOLS.map((t) => ({
+        id: t.id,
+        label: t.label,
+        commandCount: items.filter((i) => i.tool === t.id).length,
+        articleCount: blogs.filter((b) => b.tool === t.id).length,
+      })),
+    };
+  }
+
+  // Route: /api/commands
+  if (normPath === "/api/commands") {
+    let results = items;
+    if (tool && tool !== "all") {
+      results = results.filter((i) => i.tool.toLowerCase() === tool.toLowerCase());
+    }
+    if (tag) {
+      results = results.filter((i) => i.tags && i.tags.some((t) => t.toLowerCase() === tag.toLowerCase()));
+    }
+    if (search) {
+      results = filterAndRank(results, search);
+    }
+
+    const total = results.length;
+    const startIndex = (page - 1) * limit;
+    const pagedItems = results.slice(startIndex, startIndex + limit);
+    const nextCursor = startIndex + limit < total ? Buffer.from(String(startIndex + limit)).toString("base64") : null;
+    const prevCursor = startIndex > 0 ? Buffer.from(String(Math.max(0, startIndex - limit))).toString("base64") : null;
+
+    return {
+      status: 200,
+      data: {
+        items: pagedItems,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          hasMore: startIndex + limit < total,
+          nextCursor,
+          prevCursor,
+        },
+      },
+    };
+  }
+
+  // Route: /api/commands/:id
+  if (normPath.startsWith("/api/commands/")) {
+    const id = normPath.replace("/api/commands/", "");
+    const found = items.find((i) => i.id.toLowerCase() === id.toLowerCase());
+    if (!found) {
+      return { status: 404, error: { code: "NOT_FOUND", message: `Command '${id}' not found.` } };
+    }
+    return { status: 200, data: found };
+  }
+
+  // Route: /api/blogs
+  if (normPath === "/api/blogs") {
+    let results = filterAndRankBlogs(blogs, search, category, tool);
+    const total = results.length;
+    const startIndex = (page - 1) * limit;
+    const pagedItems = results.slice(startIndex, startIndex + limit);
+
+    return {
+      status: 200,
+      data: {
+        items: pagedItems.map((b) => ({
+          id: b.id,
+          slug: b.slug,
+          title: b.title,
+          tool: b.tool,
+          category: b.category,
+          readTime: b.readTime,
+          date: b.date,
+          summary: b.summary,
+          quickAnswer: b.quickAnswer,
+          tags: b.tags,
+        })),
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    };
+  }
+
+  // Route: /api/blogs/:slug
+  if (normPath.startsWith("/api/blogs/")) {
+    const slug = normPath.replace("/api/blogs/", "");
+    const found = blogs.find((b) => b.slug.toLowerCase() === slug.toLowerCase() || b.id.toLowerCase() === slug.toLowerCase());
+    if (!found) {
+      return { status: 404, error: { code: "NOT_FOUND", message: `Article with slug '${slug}' not found.` } };
+    }
+    return { status: 200, data: found };
+  }
+
+  return {
+    status: 404,
+    error: {
+      code: "ROUTE_NOT_FOUND",
+      message: `Endpoint ${method} ${path} is not recognized.`,
+      availableRoutes: [
+        "GET /api/stats",
+        "GET /api/tools",
+        "GET /api/commands",
+        "GET /api/commands/:id",
+        "GET /api/blogs",
+        "GET /api/blogs/:slug",
+      ],
+    },
+  };
+}
+
+export function executeMockGraphQL(query, variables = {}, items = [], blogs = []) {
+  const clean = (query || "").trim();
+  const errors = [];
+  const data = {};
+
+  if (!clean) {
+    return { errors: [{ message: "Query string cannot be empty" }] };
+  }
+
+  if (clean.includes("stats")) {
+    data.stats = {
+      totalCommands: items.length,
+      totalBlogs: blogs.length,
+      totalTools: TOOLS.length,
+    };
+  }
+
+  if (clean.includes("tools")) {
+    data.tools = TOOLS.map((t) => ({
+      id: t.id,
+      label: t.label,
+      commandCount: items.filter((i) => i.tool === t.id).length,
+      articleCount: blogs.filter((b) => b.tool === t.id).length,
+    }));
+  }
+
+  if (clean.includes("commands")) {
+    const cmdMatch = clean.match(/commands\s*(?:\(([^)]+)\))?/);
+    let tool = variables.tool;
+    let search = variables.search;
+    let limit = variables.limit;
+
+    if (cmdMatch && cmdMatch[1]) {
+      const argsStr = cmdMatch[1];
+      const toolMatch = argsStr.match(/tool:\s*"([^"]+)"/);
+      const limitMatch = argsStr.match(/limit:\s*(\d+)/);
+      const searchMatch = argsStr.match(/search:\s*"([^"]+)"/);
+      if (toolMatch && !tool) tool = toolMatch[1];
+      if (limitMatch && limit === undefined) limit = parseInt(limitMatch[1], 10);
+      if (searchMatch && !search) search = searchMatch[1];
+    }
+    limit = limit || 10;
+    let list = items;
+    if (tool && tool !== "all") list = list.filter((i) => i.tool === tool);
+    if (search) list = filterAndRank(list, search);
+    data.commands = list.slice(0, limit);
+  }
+
+  if (clean.includes("blogs")) {
+    const blogMatch = clean.match(/blogs\s*(?:\(([^)]+)\))?/);
+    let category = variables.category;
+    let tool = variables.tool;
+    let search = variables.search;
+    let limit = variables.limit;
+
+    if (blogMatch && blogMatch[1]) {
+      const argsStr = blogMatch[1];
+      const catMatch = argsStr.match(/category:\s*"([^"]+)"/);
+      const toolMatch = argsStr.match(/tool:\s*"([^"]+)"/);
+      const limitMatch = argsStr.match(/limit:\s*(\d+)/);
+      const searchMatch = argsStr.match(/search:\s*"([^"]+)"/);
+      if (catMatch && !category) category = catMatch[1];
+      if (toolMatch && !tool) tool = toolMatch[1];
+      if (limitMatch && limit === undefined) limit = parseInt(limitMatch[1], 10);
+      if (searchMatch && !search) search = searchMatch[1];
+    }
+    limit = limit || 5;
+    data.blogs = filterAndRankBlogs(blogs, search, category, tool).slice(0, limit);
+  }
+
+  return { data, errors: errors.length ? errors : undefined };
+}
+
+export function executeMockTRPC(procedure, input = {}, items = [], blogs = []) {
+  switch (procedure) {
+    case "commands.list": {
+      const limit = Math.min(100, input.limit || 20);
+      let list = items;
+      if (input.tool && input.tool !== "all") list = list.filter((i) => i.tool === input.tool);
+      if (input.search) list = filterAndRank(list, input.search);
+      return { result: { data: { items: list.slice(0, limit), total: list.length } } };
+    }
+    case "commands.byId": {
+      const found = items.find((i) => i.id === input.id);
+      if (!found) throw new Error(`Command not found with id: ${input.id}`);
+      return { result: { data: found } };
+    }
+    case "blogs.list": {
+      const limit = Math.min(20, input.limit || 10);
+      const list = filterAndRankBlogs(blogs, input.search, input.category, input.tool);
+      return { result: { data: { items: list.slice(0, limit), total: list.length } } };
+    }
+    case "blogs.bySlug": {
+      const found = blogs.find((b) => b.slug === input.slug);
+      if (!found) throw new Error(`Blog article not found with slug: ${input.slug}`);
+      return { result: { data: found } };
+    }
+    case "tools.all": {
+      return { result: { data: TOOLS } };
+    }
+    case "stats.summary": {
+      return {
+        result: {
+          data: {
+            commands: items.length,
+            blogs: blogs.length,
+            tools: TOOLS.length,
+            author: "Arun Neupane",
+          },
+        },
+      };
+    }
+    default:
+      throw new Error(`Unknown tRPC procedure: ${procedure}`);
+  }
 }
