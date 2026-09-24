@@ -198,7 +198,7 @@
         --shadow: 0 18px 44px -18px rgba(28, 28, 32, 0.24), 0 4px 14px -6px rgba(28, 28, 32, 0.12);
         --shadow-pop: 0 24px 56px -20px rgba(28, 28, 32, 0.34), 0 6px 18px -8px rgba(28, 28, 32, 0.16);
         --scrim: rgba(28, 28, 30, 0.32);
-        --mark: rgba(255, 202, 40, 0.42);
+        --mark: rgba(255, 202, 40, 0.45);
         color-scheme: light;
       }
 
@@ -230,7 +230,7 @@
         --shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.7), 0 4px 14px -6px rgba(0, 0, 0, 0.5);
         --shadow-pop: 0 24px 56px -20px rgba(0, 0, 0, 0.85), 0 6px 18px -8px rgba(0, 0, 0, 0.6);
         --scrim: rgba(8, 9, 12, 0.6);
-        --mark: rgba(100, 210, 255, 0.35);
+        --mark: rgba(100, 210, 255, 0.38);
         color-scheme: dark;
       }
 
@@ -262,7 +262,7 @@
         --shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.75), 0 4px 14px -6px rgba(0, 0, 0, 0.5);
         --shadow-pop: 0 24px 56px -20px rgba(0, 0, 0, 0.9), 0 6px 18px -8px rgba(0, 0, 0, 0.65);
         --scrim: rgba(5, 6, 12, 0.68);
-        --mark: rgba(255, 180, 84, 0.4);
+        --mark: rgba(255, 180, 84, 0.45);
         color-scheme: dark;
       }
 
@@ -363,11 +363,6 @@
         font-family: var(--font-display);
         font-size: 1.05rem; font-weight: 700;
         letter-spacing: -0.02em; white-space: nowrap;
-      }
-      .brand-badge {
-        font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
-        padding: 2px 7px; border-radius: var(--r-pill);
-        background: var(--accent-soft); color: var(--accent);
       }
 
       /* iOS Segmented Control in Topbar */
@@ -495,6 +490,15 @@
       .tool-select:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
       .tool-select option { color: var(--txt); background: var(--elev); font-weight: 500; }
 
+      /* Search Hit Highlighting */
+      .search-hit {
+        background: var(--mark);
+        color: inherit;
+        padding: 0 3px;
+        border-radius: 4px;
+        font-weight: 700;
+      }
+
       /* ============================================================== */
       /* Content View Area                                              */
       /* ============================================================== */
@@ -528,7 +532,7 @@
         transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
         user-select: none;
       }
-      .card:hover {
+      .card:hover, .card.is-focused {
         transform: translateY(-2px);
         box-shadow: var(--shadow);
         border-color: var(--hair-strong);
@@ -537,6 +541,17 @@
         border-color: var(--ok);
         box-shadow: 0 0 0 2px rgba(48, 209, 88, 0.2);
       }
+      .card.is-highlighted {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+        animation: pulseCard 1.6s ease-out;
+      }
+      @keyframes pulseCard {
+        0% { transform: scale(1.02); }
+        50% { transform: scale(1.04); }
+        100% { transform: scale(1); }
+      }
+
       .card-header {
         display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s2);
       }
@@ -577,6 +592,7 @@
         color: var(--accent); border-radius: 4px; padding: 2px 6px;
         font-family: inherit; font-size: inherit; outline: none;
       }
+      .card-ph-input:focus { box-shadow: 0 0 0 2px var(--accent-soft); }
 
       .card-desc {
         font-size: 0.85rem; color: var(--txt-2); line-height: 1.45;
@@ -678,11 +694,22 @@
 
       /* Full Article Reader */
       .article-reader {
+        position: relative;
         display: flex; flex-direction: column; gap: var(--s5);
         padding: var(--s6); border-radius: var(--r-lg);
         background: var(--elev); border: 1px solid var(--hair);
         box-shadow: var(--shadow-pop);
       }
+      .reader-progress-track {
+        position: sticky; top: -20px; left: 0; right: 0; height: 3px;
+        background: var(--hair); border-radius: 2px; overflow: hidden; z-index: 10;
+        margin-bottom: var(--s2);
+      }
+      .reader-progress-bar {
+        height: 100%; width: 0%;
+        background: var(--accent); transition: width 0.1s linear;
+      }
+
       .reader-back-btn {
         display: inline-flex; align-items: center; gap: 6px;
         font-size: 0.86rem; font-weight: 600; color: var(--accent);
@@ -738,6 +765,26 @@
         font-size: 0.74rem; font-family: var(--font-ui); color: var(--txt-2);
       }
       .copy-snippet-btn:hover { background: var(--chip-hover); color: var(--txt); }
+
+      /* Interactive Command Bridges inside Article */
+      .related-commands-box {
+        padding: var(--s4); border-radius: var(--r-md);
+        background: var(--code-bg); border: 1px solid var(--hair);
+        display: flex; flex-direction: column; gap: var(--s3); margin-top: var(--s4);
+      }
+      .bridge-chips-wrap {
+        display: flex; flex-wrap: wrap; gap: 6px;
+      }
+      .cmd-bridge-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 12px; border-radius: var(--r-sm);
+        background: var(--elev); border: 1px solid var(--hair-strong);
+        font-family: var(--font-mono); font-size: 0.82rem; color: var(--txt);
+        cursor: pointer; transition: all 0.2s var(--ease);
+      }
+      .cmd-bridge-btn:hover {
+        background: var(--accent); color: var(--accent-hi); border-color: var(--accent);
+      }
 
       /* FAQ Accordions */
       .faq-group {
@@ -1027,7 +1074,6 @@
             </svg>
           </div>
           <h1 class="brand-title">Command Deck</h1>
-          <span class="brand-badge">2.0</span>
         </div>
 
         <!-- Segmented Tab Navigation -->
@@ -1363,6 +1409,13 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           <div class="settings-section-title">Ergonomics & Controls</div>
           <div class="settings-row">
             <div>
+              <div>Keyboard Shortcuts (1, 2, 3)</div>
+              <div class="settings-sub">Press 1 for Commands, 2 for Articles, 3 for API Explorer</div>
+            </div>
+            <span style="font-size:0.75rem; color:var(--txt-3); font-family:var(--font-mono);">Active</span>
+          </div>
+          <div class="settings-row">
+            <div>
               <div>Dense Layout</div>
               <div class="settings-sub">Compact card padding for high information density</div>
             </div>
@@ -1370,8 +1423,8 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           </div>
           <div class="settings-row">
             <div>
-              <div>Sound Effects</div>
-              <div class="settings-sub">Subtle audio cues on copy and interaction</div>
+              <div>Acoustic Sound Effects</div>
+              <div class="settings-sub">Tactile audio synthesizer cues on copy, star, and tab navigation</div>
             </div>
             <input type="checkbox" id="settingsSoundCheck" />
           </div>
@@ -1384,13 +1437,13 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           </div>
         </div>
 
-        <!-- Data Reset Section -->
+        <!-- Telemetry & Maintenance Section -->
         <div>
-          <div class="settings-section-title">Maintenance</div>
+          <div class="settings-section-title">Storage & Maintenance</div>
           <div class="settings-row">
             <div>
-              <div>Reset Local Data</div>
-              <div class="settings-sub">Clear favorites, recent history, custom wallpapers, and settings</div>
+              <div>Local Storage Telemetry</div>
+              <div class="settings-sub" id="storageTelemetryLabel">Embedded DB: 1,946 items</div>
             </div>
             <button type="button" class="status-install-btn" id="btnResetData" style="background:#ff453a; color:#fff; border:none; padding:6px 14px;">Reset All</button>
           </div>
@@ -1473,25 +1526,74 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
       var BLOGS = typeof DECK_BLOGS !== "undefined" ? DECK_BLOGS : [];
 
       /* ------------------------------------------------------------- */
-      /* Audio & Haptic Utilities                                      */
+      /* Web Audio Acoustics Synthesizer                               */
       /* ------------------------------------------------------------- */
-      var audioCtx = null;
-      function playTone(freq, duration) {
-        if (!S.sound) return;
-        try {
-          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          var osc = audioCtx.createOscillator();
-          var gain = audioCtx.createGain();
+      var AudioEngine = {
+        ctx: null,
+        init: function () {
+          if (!this.ctx) {
+            try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+          }
+        },
+        click: function () {
+          if (!S.sound) return;
+          this.init(); if (!this.ctx) return;
+          var t = this.ctx.currentTime;
+          var osc = this.ctx.createOscillator();
+          var gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(180, t);
+          osc.frequency.exponentialRampToValueAtTime(40, t + 0.02);
+          gain.gain.setValueAtTime(0.04, t);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(t); osc.stop(t + 0.02);
+        },
+        copy: function () {
+          if (!S.sound) return;
+          this.init(); if (!this.ctx) return;
+          var t = this.ctx.currentTime;
+          var osc1 = this.ctx.createOscillator();
+          var osc2 = this.ctx.createOscillator();
+          var gain = this.ctx.createGain();
+          osc1.type = "sine"; osc1.frequency.setValueAtTime(1046.5, t);
+          osc2.type = "sine"; osc2.frequency.setValueAtTime(1318.5, t);
+          gain.gain.setValueAtTime(0.06, t);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+          osc1.connect(gain); osc2.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc1.start(t); osc2.start(t);
+          osc1.stop(t + 0.06); osc2.stop(t + 0.06);
+        },
+        fav: function () {
+          if (!S.sound) return;
+          this.init(); if (!this.ctx) return;
+          var t = this.ctx.currentTime;
+          [523.25, 659.25, 783.99].forEach(function (freq, i) {
+            var osc = AudioEngine.ctx.createOscillator();
+            var gain = AudioEngine.ctx.createGain();
+            osc.type = "sine"; osc.frequency.setValueAtTime(freq, t + i * 0.03);
+            gain.gain.setValueAtTime(0.035, t + i * 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.03 + 0.12);
+            osc.connect(gain); gain.connect(AudioEngine.ctx.destination);
+            osc.start(t + i * 0.03); osc.stop(t + i * 0.03 + 0.12);
+          });
+        },
+        modal: function () {
+          if (!S.sound) return;
+          this.init(); if (!this.ctx) return;
+          var t = this.ctx.currentTime;
+          var osc = this.ctx.createOscillator();
+          var gain = this.ctx.createGain();
           osc.type = "sine";
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + duration);
-        } catch (e) {}
-      }
+          osc.frequency.setValueAtTime(320, t);
+          osc.frequency.exponentialRampToValueAtTime(440, t + 0.08);
+          gain.gain.setValueAtTime(0.03, t);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(t); osc.stop(t + 0.08);
+        }
+      };
 
       function haptic(ms) {
         if (S.haptics && navigator.vibrate) {
@@ -1510,7 +1612,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(function () {
             toast(label || "Copied to clipboard");
-            playTone(880, 0.08);
+            AudioEngine.copy();
             haptic(15);
           }).catch(function () {
             fallbackCopy(text, label);
@@ -1530,7 +1632,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         try {
           document.execCommand("copy");
           toast(label || "Copied to clipboard");
-          playTone(880, 0.08);
+          AudioEngine.copy();
           haptic(15);
         } catch (e) {
           toast("Unable to copy");
@@ -1539,8 +1641,20 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
       }
 
       /* ------------------------------------------------------------- */
-      /* Search Scoring & Filtering                                    */
+      /* Search Scoring & Highlight Matching                           */
       /* ------------------------------------------------------------- */
+      function highlightMatch(text, query) {
+        if (!query || !text) return text;
+        var tokens = query.trim().split(/\s+/).filter(Boolean).filter(function (t) { return t.indexOf("@") !== 0 && t.indexOf("#") !== 0; });
+        if (!tokens.length) return text;
+        var out = text;
+        tokens.forEach(function (tok) {
+          var re = new RegExp("(" + tok.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi");
+          out = out.replace(re, '<mark class="search-hit">$1</mark>');
+        });
+        return out;
+      }
+
       function scoreItem(item, tokens) {
         var q = function (t) { return (t || "").toLowerCase(); };
         var total = 0;
@@ -1679,23 +1793,26 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           // Identify placeholders <placeholder>
           var phMatches = it.command.match(/<[^>]+>/g) || [];
           var phHtml = cmdEsc;
-          phMatches.forEach(function (ph) {
+          phMatches.forEach(function (ph, pIdx) {
             var k = it.id + "_" + ph;
             var val = fillVals[k] || "";
-            var inp = '<input type="text" class="card-ph-input" data-ph="' + ph.replace(/"/g, '&quot;') + '" data-key="' + k + '" value="' + val.replace(/"/g, '&quot;') + '" placeholder="' + ph.replace(/"/g, '&quot;') + '" />';
+            var inp = '<input type="text" class="card-ph-input" data-ph="' + ph.replace(/"/g, '&quot;') + '" data-key="' + k + '" data-pidx="' + pIdx + '" value="' + val.replace(/"/g, '&quot;') + '" placeholder="' + ph.replace(/"/g, '&quot;') + '" />';
             phHtml = phHtml.replace(ph.replace(/</g, "&lt;").replace(/>/g, "&gt;"), inp);
           });
+
+          // Highlight search query tokens
+          var titleHighlighted = highlightMatch(it.title, S.query);
 
           var tagsHtml = (it.tags || []).map(function (t) {
             return '<span class="card-tag">#' + t + '</span>';
           }).join("");
 
           html +=
-            '<div class="card" id="' + it.id + '" data-id="' + it.id + '" data-command="' + it.command.replace(/"/g, '&quot;') + '">' +
+            '<div class="card" id="' + it.id + '" data-id="' + it.id + '" data-command="' + it.command.replace(/"/g, '&quot;') + '" tabindex="0">' +
               '<div class="card-header">' +
                 '<div class="card-meta">' +
                   '<span class="card-tool-tag">' + it.toolLabel + (it.group ? ' · ' + it.group : '') + '</span>' +
-                  '<h3 class="card-title">' + it.title + '</h3>' +
+                  '<h3 class="card-title">' + titleHighlighted + '</h3>' +
                 '</div>' +
                 '<div class="card-actions">' +
                   '<button type="button" class="card-btn ' + (isFav ? 'is-fav' : '') + '" data-act="fav" aria-label="Favorite">' +
@@ -1797,8 +1914,25 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           '</div>';
         }).join("");
 
+        var relatedCmdsHtml = "";
+        if (blog.relatedCommands && blog.relatedCommands.length) {
+          relatedCmdsHtml =
+            '<div class="related-commands-box">' +
+              '<h4 style="font-size:0.92rem; font-weight:700; color:var(--txt);">Related Command Shortcuts</h4>' +
+              '<div class="bridge-chips-wrap">' +
+                blog.relatedCommands.map(function (cmd) {
+                  return '<button type="button" class="cmd-bridge-btn" data-runcmd="' + cmd.replace(/"/g, '&quot;') + '">' +
+                    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M13 6L19 12L13 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+                    cmd.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+                  '</button>';
+                }).join("") +
+              '</div>' +
+            '</div>';
+        }
+
         reader.innerHTML =
           '<article class="article-reader">' +
+            '<div class="reader-progress-track"><div class="reader-progress-bar" id="readerProgressBar"></div></div>' +
             '<button type="button" class="reader-back-btn" id="btnReaderBack">' +
               '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 18L5 12L11 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
               'Back to Guides' +
@@ -1820,6 +1954,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
             '</div>' +
             '<div class="reader-body">' +
               sectionsHtml +
+              relatedCmdsHtml +
               '<div class="faq-group">' +
                 '<h3 style="font-family:var(--font-display); font-size:1.3rem; font-weight:700;">Frequently Asked Questions</h3>' +
                 faqsHtml +
@@ -1845,6 +1980,18 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           btn.onclick = function () {
             var code = btn.getAttribute("data-code");
             copyText(code, "Code snippet copied");
+          };
+        });
+
+        // Interactive Command Bridge Clicks
+        reader.querySelectorAll(".cmd-bridge-btn").forEach(function (btn) {
+          btn.onclick = function () {
+            var cmd = btn.getAttribute("data-runcmd");
+            switchView("commands");
+            document.getElementById("searchInput").value = cmd;
+            S.query = cmd;
+            renderCommands();
+            toast("Spotlighted: " + cmd);
           };
         });
 
@@ -1983,6 +2130,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         document.getElementById("toolbar").hidden = viewName !== "commands";
 
         document.getElementById("statusMode").textContent = viewName.toUpperCase();
+        AudioEngine.click();
 
         if (viewName === "commands") renderCommands();
         else if (viewName === "articles") renderArticles();
@@ -2079,7 +2227,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         localStorage.setItem("cd.deck.settings", JSON.stringify(S));
         applyTheme();
         toast("Theme: " + S.theme.toUpperCase());
-        playTone(660, 0.05);
+        AudioEngine.click();
       }
 
       /* ------------------------------------------------------------- */
@@ -2120,6 +2268,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         if (toolSelectEl) {
           toolSelectEl.addEventListener("change", function () {
             S.tool = toolSelectEl.value;
+            AudioEngine.click();
             renderCommands();
           });
         }
@@ -2129,6 +2278,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           var chip = ev.target.closest(".tool-chip");
           if (!chip) return;
           S.tool = chip.getAttribute("data-tool");
+          AudioEngine.click();
           renderCommands();
         });
 
@@ -2139,6 +2289,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           document.querySelectorAll(".cat-chip").forEach(function (c) { c.classList.remove("is-active"); });
           chip.classList.add("is-active");
           S.articleCategory = chip.getAttribute("data-cat");
+          AudioEngine.click();
           renderArticles();
         });
 
@@ -2148,6 +2299,20 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           if (!btn) return;
           var slug = btn.getAttribute("data-slug");
           openArticleReader(slug);
+        });
+
+        // Article Reading Scroll Progress
+        var scrollContainer = document.getElementById("scrollContainer");
+        scrollContainer.addEventListener("scroll", function () {
+          var pBar = document.getElementById("readerProgressBar");
+          if (pBar && !document.getElementById("articleReaderContainer").hidden) {
+            var reader = document.getElementById("articleReaderContainer");
+            var max = reader.offsetHeight - scrollContainer.clientHeight;
+            if (max > 0) {
+              var pct = Math.min(100, Math.max(0, Math.round((scrollContainer.scrollTop / max) * 100)));
+              pBar.style.width = pct + "%";
+            }
+          }
         });
 
         // Card Actions Delegation
@@ -2175,6 +2340,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
                 favSet.add(id);
                 favs.push(id);
                 toast("Starred for quick access");
+                AudioEngine.fav();
               }
               localStorage.setItem("cd.deck.favs", JSON.stringify(favs));
               renderCommands();
@@ -2195,11 +2361,29 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           }
         });
 
-        // Placeholder Input Tracking
+        // Placeholder Input Tracking & Enter Key Progression
         document.getElementById("deckResults").addEventListener("input", function (ev) {
           if (ev.target.classList.contains("card-ph-input")) {
             var key = ev.target.getAttribute("data-key");
             fillVals[key] = ev.target.value;
+          }
+        });
+
+        document.getElementById("deckResults").addEventListener("keydown", function (ev) {
+          if (ev.target.classList.contains("card-ph-input") && ev.key === "Enter") {
+            ev.preventDefault();
+            var card = ev.target.closest(".card");
+            var inputs = Array.from(card.querySelectorAll(".card-ph-input"));
+            var idx = inputs.indexOf(ev.target);
+            if (idx >= 0 && idx < inputs.length - 1) {
+              inputs[idx + 1].focus();
+              inputs[idx + 1].select();
+            } else {
+              var cmd = composeCommand(card);
+              copyText(cmd, "Copied command");
+              card.classList.add("is-copied");
+              setTimeout(function () { card.classList.remove("is-copied"); }, 800);
+            }
           }
         });
 
@@ -2221,6 +2405,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           document.getElementById("trpcPlayground").hidden = true;
           document.querySelectorAll(".api-tab-btn").forEach(function (b) { b.classList.remove("is-active"); });
           this.classList.add("is-active");
+          AudioEngine.click();
         };
         document.getElementById("apiTabGraphql").onclick = function () {
           document.getElementById("restPlayground").hidden = true;
@@ -2228,6 +2413,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           document.getElementById("trpcPlayground").hidden = true;
           document.querySelectorAll(".api-tab-btn").forEach(function (b) { b.classList.remove("is-active"); });
           this.classList.add("is-active");
+          AudioEngine.click();
         };
         document.getElementById("apiTabTrpc").onclick = function () {
           document.getElementById("restPlayground").hidden = true;
@@ -2235,21 +2421,25 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           document.getElementById("trpcPlayground").hidden = false;
           document.querySelectorAll(".api-tab-btn").forEach(function (b) { b.classList.remove("is-active"); });
           this.classList.add("is-active");
+          AudioEngine.click();
         };
 
         document.getElementById("btnRunRest").onclick = function () {
           var ep = document.getElementById("restEndpointSelect").value;
           var q = document.getElementById("restQueryInput").value;
+          AudioEngine.click();
           executeClientRest(ep, q);
         };
         document.getElementById("btnRunGraphql").onclick = function () {
           var q = document.getElementById("graphqlQueryInput").value;
           var v = document.getElementById("graphqlVariablesInput").value;
+          AudioEngine.click();
           executeClientGraphQL(q, v);
         };
         document.getElementById("btnRunTrpc").onclick = function () {
           var proc = document.getElementById("trpcProcedureSelect").value;
           var inp = document.getElementById("trpcInputParams").value;
+          AudioEngine.click();
           executeClientTRPC(proc, inp);
         };
         document.getElementById("btnCopyApiResponse").onclick = function () {
@@ -2285,6 +2475,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         document.getElementById("settingsSoundCheck").onchange = function () {
           S.sound = this.checked;
           localStorage.setItem("cd.deck.settings", JSON.stringify(S));
+          if (S.sound) AudioEngine.copy();
         };
         document.getElementById("settingsHapticsCheck").checked = S.haptics;
         document.getElementById("settingsHapticsCheck").onchange = function () {
@@ -2302,6 +2493,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           localStorage.setItem("cd.deck.settings", JSON.stringify(S));
           applyWallpaperSettings();
           toast("Background color updated");
+          AudioEngine.click();
         });
 
         // Custom Color Picker Handler
@@ -2335,6 +2527,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           localStorage.setItem("cd.deck.settings", JSON.stringify(S));
           applyWallpaperSettings();
           toast("Ambience preset applied");
+          AudioEngine.click();
         });
 
         // Custom Wallpaper Image URL
@@ -2346,6 +2539,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           localStorage.setItem("cd.deck.settings", JSON.stringify(S));
           applyWallpaperSettings();
           toast("Custom wallpaper applied");
+          AudioEngine.click();
         };
 
         // Custom Wallpaper File Upload
@@ -2359,6 +2553,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
             localStorage.setItem("cd.deck.settings", JSON.stringify(S));
             applyWallpaperSettings();
             toast("Local image applied as wallpaper");
+            AudioEngine.click();
           };
           reader.readAsDataURL(file);
         };
@@ -2380,6 +2575,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           localStorage.setItem("cd.deck.settings", JSON.stringify(S));
           applyWallpaperSettings();
           toast("Wallpaper reset to default");
+          AudioEngine.click();
         };
 
         // Reset All Data
@@ -2391,7 +2587,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           setTimeout(function () { location.reload(); }, 600);
         };
 
-        // Global Shortcuts
+        // Global Keyboard Shortcuts (1, 2, 3 tabs, arrows, search, settings, palette)
         document.addEventListener("keydown", function (ev) {
           var isInput = ev.target.tagName === "INPUT" || ev.target.tagName === "TEXTAREA" || ev.target.tagName === "SELECT";
           if (ev.key === "Escape") {
@@ -2410,6 +2606,11 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           if (!isInput && ev.key === "/") {
             ev.preventDefault();
             document.getElementById("searchInput").focus();
+          }
+          if (!isInput && (ev.key === "1" || ev.key === "2" || ev.key === "3")) {
+            if (ev.key === "1") switchView("commands");
+            else if (ev.key === "2") switchView("articles");
+            else if (ev.key === "3") switchView("api");
           }
         });
 
@@ -2450,13 +2651,24 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           };
         }
 
-        // Initialize Hash Routing
+        // Initialize Hash Routing & Deep Linking
         var hash = location.hash.replace(/^#/, "");
         if (hash === "articles" || hash === "api" || hash === "commands") {
           switchView(hash);
         } else if (hash.indexOf("article/") === 0) {
           switchView("articles");
           openArticleReader(hash.replace("article/", ""));
+        } else if (hash.indexOf("@") >= 0) {
+          // Direct command deep-link e.g. #git@4
+          switchView("commands");
+          setTimeout(function () {
+            var targetCard = document.getElementById(hash);
+            if (targetCard) {
+              targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
+              targetCard.classList.add("is-highlighted");
+              toast("Jumped to command");
+            }
+          }, 300);
         } else if (TOOL_ORDER.indexOf(hash) >= 0) {
           S.tool = hash;
           switchView("commands");
@@ -2481,6 +2693,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
         var inp = document.getElementById("paletteInput");
         inp.value = "";
         inp.focus();
+        AudioEngine.modal();
         renderPaletteItems("");
         inp.oninput = function () { renderPaletteItems(this.value); };
       }
@@ -2535,6 +2748,18 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
       function openSettings() {
         document.getElementById("scrim").classList.add("is-active");
         document.getElementById("settingsSheet").classList.add("is-active");
+        AudioEngine.modal();
+
+        // Update telemetry badge
+        try {
+          var bytes = 0;
+          for (var key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) bytes += (localStorage[key].length * 2);
+          }
+          var kb = (bytes / 1024).toFixed(1);
+          var el = document.getElementById("storageTelemetryLabel");
+          if (el) el.textContent = "Embedded DB: 1,946 commands · Cache: Active · Storage: " + kb + " KB";
+        } catch (e) {}
       }
       function closeSettings() {
         document.getElementById("scrim").classList.remove("is-active");
@@ -2557,13 +2782,14 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           menu.innerHTML =
             '<button type="button" data-ctx="copy">Copy Command</button>' +
             '<button type="button" data-ctx="fav">' + (isFav ? "Unstar Command" : "Star Command") + '</button>' +
+            '<button type="button" data-ctx="link">Copy Direct Card Link</button>' +
             '<hr />' +
             '<button type="button" data-ctx="api">Inspect in API Explorer</button>' +
             '<button type="button" data-ctx="share">Share View Link</button>';
 
           menu.hidden = false;
           menu.style.left = Math.min(ev.clientX, window.innerWidth - 220) + "px";
-          menu.style.top = Math.min(ev.clientY, window.innerHeight - 160) + "px";
+          menu.style.top = Math.min(ev.clientY, window.innerHeight - 190) + "px";
           requestAnimationFrame(function () { menu.classList.add("is-open"); });
         }
       });
@@ -2580,9 +2806,12 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           copyText(cmd, "Copied command");
         } else if (act === "fav") {
           if (favSet.has(id)) { favSet.delete(id); favs = favs.filter(function (f) { return f !== id; }); }
-          else { favSet.add(id); favs.push(id); }
+          else { favSet.add(id); favs.push(id); AudioEngine.fav(); }
           localStorage.setItem("cd.deck.favs", JSON.stringify(favs));
           renderCommands();
+        } else if (act === "link") {
+          var deepUrl = location.origin + location.pathname + "#" + id;
+          copyText(deepUrl, "Direct card link copied");
         } else if (act === "api") {
           switchView("api");
           document.getElementById("restQueryInput").value = "search=" + encodeURIComponent(ctxTargetCard.getAttribute("data-command"));
@@ -2606,7 +2835,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
       /* Console Easter Eggs & Humorous Styled Banner                  */
       /* ------------------------------------------------------------- */
       function initConsoleEasterEggs() {
-        console.log("%cCommand Deck 2.0 %carmed and ready.", "font-weight:800; font-size:15px; color:#ffb454", "color:#8e8e93");
+        console.log("%cCommand Deck %carmed and ready.", "font-weight:800; font-size:15px; color:#ffb454", "color:#8e8e93");
         console.log("%cCrafted by Arun Neupane · Butwal, Lumbini, Nepal · CTO at Sajilo Digital", "color:#64d2ff; font-weight:600");
         console.log("%cType %chelp%c in console to access developer diagnostics and easter eggs.", "color:#8e8e93", "color:#ffb454; font-weight:700", "color:#8e8e93");
 
@@ -2632,6 +2861,7 @@ query GetCommandsAndStats($tool: String, $limit: Int) {
           console.log("%c OS:        Web / PWA (Standalone)", "color:#f5f5f7");
           console.log("%c Commands:  1,946 across 9 toolsets", "color:#f5f5f7");
           console.log("%c Articles:  10 Deep-Dive Technical Guides", "color:#f5f5f7");
+          console.log("%c Timezone:  NPT (UTC+5:45)", "color:#f5f5f7");
           console.log("%c Storage:   Zero-Network Embedded DB", "color:#f5f5f7");
           console.log("%c========================================", "color:#ffb454");
           return "Telemetry OK";
